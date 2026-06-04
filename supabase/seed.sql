@@ -20,3 +20,21 @@ insert into public.teams (name, slug, sport, county, country) values
   ('Kerry',   'kerry-lgfa',   'lgfa',    'Kerry',     'IE'),
   ('Cork',    'cork-camogie', 'camogie', 'Cork',      'IE'),
   ('Galway',  'galway-lgfa',  'lgfa',    'Galway',    'IE');
+
+-- Sample matches (looks up related rows by slug)
+insert into public.matches (home_team_id, away_team_id, competition_id, venue_id, kickoff_at, home_score, away_score, sport, status)
+values
+  (
+    (select id from teams where slug = 'dublin-lgfa'),
+    (select id from teams where slug = 'kerry-lgfa'),
+    (select id from competitions where slug = 'lgfa-sfc'),
+    (select id from venues where slug = 'croke-park'),
+    '2025-08-03 15:00:00+00', '2-14', '1-12', 'lgfa', 'completed'
+  ),
+  (
+    (select id from teams where slug = 'galway-lgfa'),
+    (select id from teams where slug = 'kerry-lgfa'),
+    (select id from competitions where slug = 'lgfa-sfc'),
+    (select id from venues where slug = 'pairc-ui-chaoimh'),
+    '2025-07-20 14:00:00+00', null, null, 'lgfa', 'upcoming'
+  );

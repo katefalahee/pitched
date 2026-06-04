@@ -1,6 +1,7 @@
 import Fastify from 'fastify'
 import cors from '@fastify/cors'
 import { venueRoutes } from './routes/venues'
+import { matchRoutes } from './routes/matches'
 import 'dotenv/config'
 
 const app = Fastify({ logger: true })
@@ -18,6 +19,7 @@ async function start() {
 
   // Routes
   await app.register(venueRoutes, { prefix: '/v1/venues' })
+  await app.register(matchRoutes, { prefix: '/v1/matches' })
 
   try {
     await app.listen({ port: 4000, host: '0.0.0.0' })

@@ -1,0 +1,13 @@
+{
+  "name": "pitched",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "mobile": "pnpm --filter mobile start",
+    "api": "pnpm --filter api dev"
+  }
+}

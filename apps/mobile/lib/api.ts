@@ -110,3 +110,9 @@ export async function getFollowingList() {
   const data = await res.json()
   return data.following
 }
+
+export async function getUserProfile(userId: string) {
+  const res = await fetch(`${API_URL}/v1/users/${userId}/profile`, { headers: await authHeader() })
+  if (!res.ok) throw new Error('Failed to load profile')
+  return res.json()
+}

@@ -10,10 +10,11 @@ import FindPeople from './FindPeople'
 import LogMatch from './LogMatch'
 import Header from './Header'
 import Profile from './Profile'
+import UserProfile from './UserProfile'
 import type { Session } from '@supabase/supabase-js'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 
-type Screen = 'matches' | 'diary' | 'feed' | 'find' | 'profile'
+type Screen = 'matches' | 'diary' | 'feed' | 'find' | 'profile' | 'user'
 
 export default function App() {
   const [session, setSession] = useState<Session | null>(null)
@@ -40,9 +41,11 @@ function Main({ session }: { session: Session }) {
   const [screen, setScreen] = useState<Screen>('matches')
   const [menuOpen, setMenuOpen] = useState(false)
   const [selectedMatch, setSelectedMatch] = useState<any | null>(null)
+  const [viewUserId, setViewUserId] = useState<string | null>(null)
 
   const openMenu = () => setMenuOpen(true)
   const go = (s: Screen) => { setMenuOpen(false); setScreen(s) }
+  const openUser = (id: string) => { setMenuOpen(false); setViewUserId(id); setScreen('user') }
 
   // The logging screen sits on top of everything when a match is selected
   if (selectedMatch) {
@@ -67,8 +70,9 @@ return (
         {screen === 'matches' && <Matches session={session} onMenu={openMenu} onPick={setSelectedMatch} />}
         {screen === 'diary' && <Diary userId={session.user.id} onMenu={openMenu} />}
         {screen === 'feed' && <Feed onMenu={openMenu} />}
-        {screen === 'find' && <FindPeople onMenu={openMenu} />}
+        {screen === 'find' && <FindPeople onMenu={openMenu} onOpenUser={openUser} />}
         {screen === 'profile' && <Profile onMenu={openMenu} onOpenDiary={() => setScreen('diary')} />}
+        {screen === 'user' && viewUserId && (<UserProfile userId={viewUserId} onMenu={openMenu} onBack={() => setScreen('find')} />)}
       </View>
 
       {/* Persistent bottom navigation */}
@@ -136,6 +140,7 @@ function Matches({ session, onMenu, onPick }: { session: Session; onMenu: () => 
   const [matches, setMatches] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [viewUserId, setViewUserId] = useState<string | null>(null)
 
   useEffect(() => {
     getMatches().then(setMatches).catch((e) => setError(e.message)).finally(() => setLoading(false))

@@ -131,4 +131,65 @@ export async function userRoutes(app: FastifyInstance) {
     }
     return { following: data.map((r: any) => r.followed) }
   })
+
+  // GET /v1/users/:id/profile — any user's public profile
+  app.get('/:id/profile', { preHandler: requireUser }, async (req, reply) => {
+    const me = (req as any).userId
+    const { id } = req.params as { id: string }
+
+    const { data: profile, error } = await supabase
+      .from('users')
+      .select('id, username, display_name, bio, location')
+      .eq('id', id)
+      .single()
+
+    if (error || !profile) {
+      return reply.status(404).send({ error: 'User not found' })
+    }
+
+    // Counts
+    const [{ count: logCount }, { count: followingCount }, { count: followerCount }] = await Promise.all([
+      supabase.from('match_logs').select('*', { count: 'exact', head: true }).eq('user_id', id).eq('visibility', 'public'),
+      supabase.from('follows').select('*', { count: 'exact', head: true }).eq('follower_id', id),
+      supabase.from('follows').select('*', { count: 'exact', head: true }).eq('following_id', id),
+    ])
+
+    // Am I following them?
+    const { data: rel } = await supabase
+      .from('follows')
+      .select('follower_id')
+      .eq('follower_id', me)
+      .eq('following_id', id)
+      .maybeSingle()
+
+    // Their public logs
+    const { data: logs, error: logErr } = await supabase
+      .from('match_logs')
+      .select(`
+        *,
+        match:matches(
+          *,
+          home_team:teams!matches_home_team_id_fkey(*),
+          away_team:teams!matches_away_team_id_fkey(*),
+          venue:venues(*)
+        )
+      `)
+      .eq('user_id', id)
+      .eq('visibility', 'public')
+      .order('logged_at', { ascending: false })
+      .limit(50)
+
+    if (logErr) {
+      console.error('USER PROFILE LOGS ERROR:', logErr)
+      return reply.status(400).send({ error: logErr.message })
+    }
+
+    return {
+      profile,
+      stats: { logs: logCount ?? 0, following: followingCount ?? 0, followers: followerCount ?? 0 },
+      isFollowing: !!rel,
+      isMe: me === id,
+      logs,
+    }
+  })
 }

@@ -3,7 +3,7 @@ import { View, Text, TextInput, FlatList, TouchableOpacity, StyleSheet, Activity
 import { searchUsers, followUser, unfollowUser, getFollowing } from './lib/api'
 import Header from './Header'
 
-export default function FindPeople({ onMenu }: { onMenu: () => void }) {
+export default function FindPeople({ onMenu, onOpenUser }: { onMenu: () => void; onOpenUser: (id: string) => void }) {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<any[]>([])
   const [following, setFollowing] = useState<string[]>([])
@@ -70,13 +70,15 @@ export default function FindPeople({ onMenu }: { onMenu: () => void }) {
           const isFollowing = following.includes(item.id)
           return (
             <View style={styles.row}>
-              <View style={styles.avatar}>
-                <Text style={styles.avatarText}>{item.username.charAt(0).toUpperCase()}</Text>
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.username}>@{item.username}</Text>
-                {item.display_name ? <Text style={styles.displayName}>{item.display_name}</Text> : null}
-              </View>
+              <TouchableOpacity style={styles.rowMain} onPress={() => onOpenUser(item.id)}>
+                <View style={styles.avatar}>
+                  <Text style={styles.avatarText}>{item.username.charAt(0).toUpperCase()}</Text>
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.username}>@{item.username}</Text>
+                  {item.display_name ? <Text style={styles.displayName}>{item.display_name}</Text> : null}
+                </View>
+              </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.followBtn, isFollowing && styles.followingBtn]}
                 onPress={() => toggleFollow(item.id)}
@@ -108,4 +110,5 @@ const styles = StyleSheet.create({
   followingBtn: { backgroundColor: 'transparent', borderWidth: 1, borderColor: '#2E3240' },
   followText: { color: '#000', fontWeight: '600', fontSize: 13 },
   followingText: { color: '#A8AEBE' },
+  rowMain: { flexDirection: 'row', alignItems: 'center', gap: 12, flex: 1 },
 })

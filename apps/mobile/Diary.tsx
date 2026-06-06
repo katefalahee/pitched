@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { View, Text, FlatList, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native'
+import { View, Text, FlatList, StyleSheet, ActivityIndicator, RefreshControl } from 'react-native'
 import { getUserLogs } from './lib/api'
 import Header from './Header'
 
@@ -7,14 +7,24 @@ import Header from './Header'
 export default function Diary({ userId, onMenu }: { userId: string; onMenu: () => void }) {
   const [logs, setLogs] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    getUserLogs(userId)
+  function load() {
+    return getUserLogs(userId)
       .then(setLogs)
       .catch((e) => setError(e.message))
-      .finally(() => setLoading(false))
+  }
+
+  useEffect(() => {
+    load().finally(() => setLoading(false))
   }, [])
+
+  async function onRefresh() {
+    setRefreshing(true)
+    await load()
+    setRefreshing(false)
+  }
 
   return (
     <View style={styles.container}>
@@ -33,6 +43,16 @@ export default function Diary({ userId, onMenu }: { userId: string; onMenu: () =
         data={logs}
         keyExtractor={(item) => item.id}
         contentContainerStyle={{ paddingTop: 16 }}
+        alwaysBounceVertical={true}
+        refreshControl={
+          <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                tintColor="#10B981"
+                colors={['#10B981']}
+                progressViewOffset={60}
+              />
+        }
         renderItem={({ item }) => (
           <View style={styles.card}>
             <Text style={styles.teams}>

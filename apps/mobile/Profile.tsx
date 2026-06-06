@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
-import { View, Text, FlatList, StyleSheet, ActivityIndicator } from 'react-native'
+import { View, Text, FlatList, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native'
 import Header from './Header'
 import { getMyProfile, getFollowers, getFollowingList } from './lib/api'
 
-export default function Profile({ onMenu, onOpenDiary }: { onMenu: () => void; onOpenDiary: () => void }) {
+export default function Profile({ onMenu, onOpenDiary, onOpenUser }: { onMenu: () => void; onOpenDiary: () => void; onOpenUser: (id: string) => void }) {
   const [data, setData] = useState<any | null>(null)
   const [following, setFollowing] = useState<any[]>([])
   const [followers, setFollowers] = useState<any[]>([])
@@ -80,7 +80,7 @@ export default function Profile({ onMenu, onOpenDiary }: { onMenu: () => void; o
               </Text>
             }
             renderItem={({ item }) => (
-              <View style={styles.personRow}>
+              <TouchableOpacity style={styles.personRow} onPress={() => onOpenUser(item.id)}>
                 <View style={styles.smallAvatar}>
                   <Text style={styles.smallAvatarText}>{item.username.charAt(0).toUpperCase()}</Text>
                 </View>
@@ -88,7 +88,7 @@ export default function Profile({ onMenu, onOpenDiary }: { onMenu: () => void; o
                   <Text style={styles.personName}>@{item.username}</Text>
                   {item.display_name ? <Text style={styles.personSub}>{item.display_name}</Text> : null}
                 </View>
-              </View>
+              </TouchableOpacity>
             )}
           />
         </>

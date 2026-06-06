@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { View, Text, FlatList, StyleSheet, ActivityIndicator, TouchableOpacity, Alert, Modal } from 'react-native'
+import { View, Text, FlatList, StyleSheet, ActivityIndicator, TouchableOpacity, Alert, Modal, RefreshControl } from 'react-native'
 import { StatusBar } from 'expo-status-bar'
 import { getMatches } from './lib/api'
 import { supabase } from './lib/supabase'
@@ -45,7 +45,8 @@ function Main({ session }: { session: Session }) {
 
   const openMenu = () => setMenuOpen(true)
   const go = (s: Screen) => { setMenuOpen(false); setScreen(s) }
-  const openUser = (id: string) => { setMenuOpen(false); setViewUserId(id); setScreen('user') }
+  const [userBackTo, setUserBackTo] = useState<Screen>('find')
+  const openUser = (id: string) => { setMenuOpen(false); setUserBackTo(screen); setViewUserId(id); setScreen('user') }
 
   // The logging screen sits on top of everything when a match is selected
   if (selectedMatch) {
@@ -71,8 +72,8 @@ return (
         {screen === 'diary' && <Diary userId={session.user.id} onMenu={openMenu} />}
         {screen === 'feed' && <Feed onMenu={openMenu} />}
         {screen === 'find' && <FindPeople onMenu={openMenu} onOpenUser={openUser} />}
-        {screen === 'profile' && <Profile onMenu={openMenu} onOpenDiary={() => setScreen('diary')} />}
-        {screen === 'user' && viewUserId && (<UserProfile userId={viewUserId} onMenu={openMenu} onBack={() => setScreen('find')} />)}
+        {screen === 'profile' && <Profile onMenu={openMenu} onOpenDiary={() => setScreen('diary')} onOpenUser={openUser} />}
+        {screen === 'user' && viewUserId && (<UserProfile userId={viewUserId} onMenu={openMenu} onBack={() => setScreen(userBackTo)} />)}
       </View>
 
       {/* Persistent bottom navigation */}
@@ -139,12 +140,23 @@ return (
 function Matches({ session, onMenu, onPick }: { session: Session; onMenu: () => void; onPick: (m: any) => void }) {
   const [matches, setMatches] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [viewUserId, setViewUserId] = useState<string | null>(null)
 
+    function load() {
+    return getMatches().then(setMatches).catch((e) => setError(e.message))
+  }
+
   useEffect(() => {
-    getMatches().then(setMatches).catch((e) => setError(e.message)).finally(() => setLoading(false))
+    load().finally(() => setLoading(false))
   }, [])
+
+  async function onRefresh() {
+    setRefreshing(true)
+    await load()
+    setRefreshing(false)
+  }
 
   return (
     <>
@@ -157,6 +169,10 @@ function Matches({ session, onMenu, onPick }: { session: Session; onMenu: () => 
         data={matches}
         keyExtractor={(item) => item.id}
         contentContainerStyle={{ paddingTop: 16, paddingBottom: 40 }}
+        alwaysBounceVertical={true}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#10B981" colors={['#10B981']} progressViewOffset={60}/>
+        }
         renderItem={({ item }) => (
           <TouchableOpacity style={styles.card} onPress={() => onPick(item)}>
             <Text style={styles.teams}>{item.home_team.name} v {item.away_team.name}</Text>

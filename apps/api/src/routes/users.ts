@@ -162,7 +162,11 @@ export async function userRoutes(app: FastifyInstance) {
       .eq('following_id', id)
       .maybeSingle()
 
-    // Their public logs
+    // Decide which visibilities this viewer is allowed to see
+    const canSeeFriends = me === id || !!rel
+    const allowedVisibilities = canSeeFriends ? ['public', 'friends'] : ['public']
+
+    // Their logs, filtered by what the viewer is allowed to see
     const { data: logs, error: logErr } = await supabase
       .from('match_logs')
       .select(`
@@ -175,7 +179,7 @@ export async function userRoutes(app: FastifyInstance) {
         )
       `)
       .eq('user_id', id)
-      .eq('visibility', 'public')
+      .in('visibility', allowedVisibilities)
       .order('logged_at', { ascending: false })
       .limit(50)
 

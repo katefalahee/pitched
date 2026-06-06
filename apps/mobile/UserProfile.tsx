@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { View, Text, FlatList, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native'
+import { View, Text, FlatList, StyleSheet, ActivityIndicator, TouchableOpacity, RefreshControl } from 'react-native'
 import Header from './Header'
 import { getUserProfile, followUser, unfollowUser } from './lib/api'
 
@@ -11,26 +11,37 @@ export default function UserProfile({ userId, onMenu, onBack }: {
   const [data, setData] = useState<any | null>(null)
   const [following, setFollowing] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    getUserProfile(userId)
+  function load() {
+    return getUserProfile(userId)
       .then((d) => {
         setData(d)
         setFollowing(d.isFollowing)
       })
       .catch((e) => setError(e.message))
-      .finally(() => setLoading(false))
+  }
+
+  useEffect(() => {
+    load().finally(() => setLoading(false))
   }, [userId])
+
+  async function onRefresh() {
+    setRefreshing(true)
+    await load()
+    setRefreshing(false)
+  }
 
   async function toggleFollow() {
     const was = following
-    setFollowing(!was) // optimistic
+    setFollowing(!was)
     try {
       if (was) await unfollowUser(userId)
       else await followUser(userId)
+      await load() // refresh logs + counts to reflect the new relationship
     } catch {
-      setFollowing(was) // revert on failure
+      setFollowing(was)
     }
   }
 
@@ -70,11 +81,21 @@ export default function UserProfile({ userId, onMenu, onBack }: {
             )}
           </View>
 
-          <Text style={styles.sectionTitle}>Public reviews</Text>
+          <Text style={styles.sectionTitle}>{following || data.isMe ? 'Reviews' : 'Public reviews'}</Text>
           <FlatList
             data={data.logs}
             keyExtractor={(item) => item.id}
             contentContainerStyle={{ paddingBottom: 40 }}
+            alwaysBounceVertical={true}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                tintColor="#10B981"
+                colors={['#10B981']}
+                progressViewOffset={60}
+              />
+            }
             ListEmptyComponent={<Text style={styles.empty}>No public reviews yet.</Text>}
             renderItem={({ item }) => (
               <View style={styles.logCard}>

@@ -57,4 +57,46 @@ export async function logRoutes(app: FastifyInstance) {
     }
     return { logs: data }
   })
+
+  // GET /v1/logs/feed — logs from people the user follows
+  app.get('/feed', { preHandler: requireUser }, async (req, reply) => {
+    const me = (req as any).userId
+
+    // Who do I follow?
+    const { data: follows, error: followErr } = await supabase
+      .from('follows')
+      .select('following_id')
+      .eq('follower_id', me)
+
+    if (followErr) return reply.status(400).send({ error: followErr.message })
+
+    const followingIds = follows.map((f) => f.following_id)
+    if (followingIds.length === 0) {
+      return { logs: [] } // not following anyone yet
+    }
+
+    // Their public logs, newest first, with match + user details attached
+    const { data, error } = await supabase
+      .from('match_logs')
+      .select(`
+        *,
+        user:users!match_logs_user_id_fkey(id, username, display_name),
+        match:matches(
+          *,
+          home_team:teams!matches_home_team_id_fkey(*),
+          away_team:teams!matches_away_team_id_fkey(*),
+          venue:venues(*)
+        )
+      `)
+      .in('user_id', followingIds)
+      .eq('visibility', 'public')
+      .order('logged_at', { ascending: false })
+      .limit(50)
+
+    if (error) {
+      console.error('FEED ERROR:', error)
+      return reply.status(400).send({ error: error.message })
+    }
+    return { logs: data }
+  })
 }

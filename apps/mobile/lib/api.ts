@@ -81,3 +81,12 @@ export async function getFollowing() {
   const data = await res.json()
   return data.following
 }
+
+export async function getFeed() {
+  const res = await fetch(`${API_URL}/v1/logs/feed`, {
+    headers: await authHeader(),
+  })
+  if (!res.ok) throw new Error('Failed to load feed')
+  const data = await res.json()
+  return data.logs
+}

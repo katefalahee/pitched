@@ -7,6 +7,7 @@ import Login from './Login'
 import LogMatch from './LogMatch'
 import Diary from './Diary'
 import FindPeople from './FindPeople'
+import Feed from './Feed'
 import type { Session } from '@supabase/supabase-js'
 
 export default function App() {
@@ -50,6 +51,7 @@ function MatchList({ session }: { session: Session }) {
   const [selectedMatch, setSelectedMatch] = useState<any | null>(null)
   const [showDiary, setShowDiary] = useState(false)
   const [showFind, setShowFind] = useState(false)
+  const [showFeed, setShowFeed] = useState(false)
 
   function loadMatches() {
     getMatches()
@@ -85,6 +87,10 @@ function MatchList({ session }: { session: Session }) {
     return <FindPeople onBack={() => setShowFind(false)} />
   }
 
+  if (showFeed) {
+    return <Feed onBack={() => setShowFeed(false)} />
+  }
+
   return (
     <View style={styles.container}>
       <StatusBar style="light" />
@@ -99,6 +105,9 @@ function MatchList({ session }: { session: Session }) {
           </TouchableOpacity>
           <TouchableOpacity onPress={() => setShowFind(true)}>
             <Text style={styles.diaryLink}>Find People →</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => setShowFeed(true)}>
+            <Text style={styles.diaryLink}>Feed →</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => supabase.auth.signOut()}>
             <Text style={styles.signout}>Sign out</Text>

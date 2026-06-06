@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
-import { View, Text, FlatList, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native'
+import { View, Text, FlatList, StyleSheet, ActivityIndicator, TouchableOpacity, Alert } from 'react-native'
 import { StatusBar } from 'expo-status-bar'
 import { getMatches } from './lib/api'
 import { supabase } from './lib/supabase'
 import Login from './Login'
+import LogMatch from './LogMatch'
 import type { Session } from '@supabase/supabase-js'
 
 export default function App() {
@@ -44,13 +45,33 @@ function MatchList({ session }: { session: Session }) {
   const [matches, setMatches] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [selectedMatch, setSelectedMatch] = useState<any | null>(null)
 
-  useEffect(() => {
+  function loadMatches() {
     getMatches()
       .then(setMatches)
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false))
+  }
+
+  useEffect(() => {
+    loadMatches()
   }, [])
+
+  // If a match is selected, show the logging screen instead of the list
+  if (selectedMatch) {
+    return (
+      <LogMatch
+        match={selectedMatch}
+        userId={session.user.id}
+        onCancel={() => setSelectedMatch(null)}
+        onDone={() => {
+          setSelectedMatch(null)
+          Alert.alert('Logged!', 'Your match has been saved to your diary.')
+        }}
+      />
+    )
+  }
 
   return (
     <View style={styles.container}>
@@ -73,7 +94,7 @@ function MatchList({ session }: { session: Session }) {
         keyExtractor={(item) => item.id}
         contentContainerStyle={{ paddingTop: 16 }}
         renderItem={({ item }) => (
-          <View style={styles.card}>
+          <TouchableOpacity style={styles.card} onPress={() => setSelectedMatch(item)}>
             <Text style={styles.teams}>
               {item.home_team.name} v {item.away_team.name}
             </Text>
@@ -85,7 +106,8 @@ function MatchList({ session }: { session: Session }) {
             ) : (
               <Text style={styles.upcoming}>Upcoming</Text>
             )}
-          </View>
+            <Text style={styles.tapHint}>Tap to log →</Text>
+          </TouchableOpacity>
         )}
       />
     </View>
@@ -105,4 +127,5 @@ const styles = StyleSheet.create({
   meta: { fontSize: 12, color: '#6B7183', marginBottom: 8 },
   score: { fontSize: 15, color: '#10B981', fontWeight: '600' },
   upcoming: { fontSize: 13, color: '#F59E0B' },
+  tapHint: { color: '#10B981', fontSize: 12, marginTop: 8 },
 })

@@ -11,6 +11,7 @@ import LogMatch from './LogMatch'
 import Header from './Header'
 import Profile from './Profile'
 import type { Session } from '@supabase/supabase-js'
+import { MaterialCommunityIcons } from '@expo/vector-icons'
 
 type Screen = 'matches' | 'diary' | 'feed' | 'find' | 'profile'
 
@@ -58,17 +59,32 @@ function Main({ session }: { session: Session }) {
     )
   }
 
-  return (
+return (
     <View style={styles.container}>
       <StatusBar style="light" />
 
-      {screen === 'matches' && <Matches session={session} onMenu={openMenu} onPick={setSelectedMatch} />}
-      {screen === 'diary' && <Diary userId={session.user.id} onMenu={openMenu} />}
-      {screen === 'feed' && <Feed onMenu={openMenu} />}
-      {screen === 'find' && <FindPeople onMenu={openMenu} />}
-      {screen === 'profile' && <Profile onMenu={openMenu} onOpenDiary={() => setScreen('diary')} />}
+      <View style={{ flex: 1 }}>
+        {screen === 'matches' && <Matches session={session} onMenu={openMenu} onPick={setSelectedMatch} />}
+        {screen === 'diary' && <Diary userId={session.user.id} onMenu={openMenu} />}
+        {screen === 'feed' && <Feed onMenu={openMenu} />}
+        {screen === 'find' && <FindPeople onMenu={openMenu} />}
+        {screen === 'profile' && <Profile onMenu={openMenu} onOpenDiary={() => setScreen('diary')} />}
+      </View>
 
-      {/* Slide-over menu, available on every screen */}
+      {/* Persistent bottom navigation */}
+      <View style={styles.bottomBar}>
+        <TouchableOpacity style={styles.bottomItem} onPress={() => setScreen('matches')}>
+          <MaterialCommunityIcons name="stadium-variant" size={26} color={screen === 'matches' ? '#10B981' : '#6B7183'} />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.bottomItem} onPress={() => setScreen('diary')}>
+          <MaterialCommunityIcons name="book-open-variant" size={26} color={screen === 'diary' ? '#10B981' : '#6B7183'} />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.bottomItem} onPress={() => setScreen('feed')}>
+          <MaterialCommunityIcons name="pulse" size={26} color={screen === 'feed' ? '#10B981' : '#6B7183'} />
+        </TouchableOpacity>
+      </View>
+
+      {/* Slide-over menu */}
       <Modal visible={menuOpen} transparent animationType="fade" onRequestClose={() => setMenuOpen(false)}>
         <TouchableOpacity style={styles.menuBackdrop} activeOpacity={1} onPress={() => setMenuOpen(false)}>
           <View style={styles.menuPanel}>
@@ -87,10 +103,22 @@ function Main({ session }: { session: Session }) {
 
             <View style={styles.menuDivider} />
 
-            <TouchableOpacity style={styles.menuItem} onPress={() => go('matches')}><Text style={styles.menuItemText}>Matches</Text></TouchableOpacity>
-            <TouchableOpacity style={styles.menuItem} onPress={() => go('diary')}><Text style={styles.menuItemText}>My Diary</Text></TouchableOpacity>
-            <TouchableOpacity style={styles.menuItem} onPress={() => go('feed')}><Text style={styles.menuItemText}>Feed</Text></TouchableOpacity>
-            <TouchableOpacity style={styles.menuItem} onPress={() => go('find')}><Text style={styles.menuItemText}>Find People</Text></TouchableOpacity>
+            <TouchableOpacity style={[styles.menuItem, styles.menuItemRow]} onPress={() => go('find')}>
+              <MaterialCommunityIcons name="magnify" size={20} color="#F4F5F7" />
+              <Text style={styles.menuItemText}>Find people</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.menuItem, styles.menuItemRow]} onPress={() => go('matches')}>
+              <MaterialCommunityIcons name="stadium-variant" size={20} color="#F4F5F7" />
+              <Text style={styles.menuItemText}>Matches</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.menuItem, styles.menuItemRow]} onPress={() => go('diary')}>
+              <MaterialCommunityIcons name="book-open-variant" size={20} color="#F4F5F7" />
+              <Text style={styles.menuItemText}>My Diary</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.menuItem, styles.menuItemRow]} onPress={() => go('feed')}>
+              <MaterialCommunityIcons name="pulse" size={20} color="#F4F5F7" />
+              <Text style={styles.menuItemText}>Feed</Text>
+            </TouchableOpacity>
 
             <View style={styles.menuDivider} />
 
@@ -162,4 +190,9 @@ const styles = StyleSheet.create({
   menuItem: { paddingVertical: 14 },
   menuItemText: { color: '#F4F5F7', fontSize: 16 },
   menuSignOut: { color: '#EF4444', fontSize: 16 },
+  bottomBar: { flexDirection: 'row', backgroundColor: '#1C1F27', paddingVertical: 14, paddingBottom: 28, marginHorizontal: -16 },
+  bottomItem: { flex: 1, alignItems: 'center' },
+  bottomIcon: { fontSize: 24, opacity: 0.45 },
+  bottomIconOn: { opacity: 1 },
+  menuItemRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
 })

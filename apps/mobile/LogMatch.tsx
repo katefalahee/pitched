@@ -41,7 +41,7 @@ export default function LogMatch({ match, userId, onDone, onCancel }: {
       })
       onDone()
     } catch (e: any) {
-      Alert.alert('Could not save', e.message)
+      Alert.alert('Hold on', e.message)
       setSaving(false)
     }
   }

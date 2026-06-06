@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { View, Text, FlatList, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native'
 import { getFeed } from './lib/api'
+import Header from './Header'
 
-export default function Feed({ onBack }: { onBack: () => void }) {
+export default function Feed({ onMenu }: { onMenu: () => void }) {
   const [logs, setLogs] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -16,11 +17,7 @@ export default function Feed({ onBack }: { onBack: () => void }) {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity onPress={onBack}>
-        <Text style={styles.back}>← Back</Text>
-      </TouchableOpacity>
-      <Text style={styles.heading}>Feed</Text>
-      <Text style={styles.subheading}>From people you follow</Text>
+      <Header onMenu={onMenu} subtitle="The latest from people you follow" />
 
       {loading && <ActivityIndicator color="#10B981" style={{ marginTop: 40 }} />}
       {error && <Text style={styles.error}>Error: {error}</Text>}
@@ -59,7 +56,7 @@ export default function Feed({ onBack }: { onBack: () => void }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#13151A', paddingHorizontal: 16, paddingTop: 70 },
+  container: { flex: 1 },
   heading: { fontSize: 32, fontWeight: '700', color: '#F4F5F7' },
   subheading: { fontSize: 13, color: '#A8AEBE', marginTop: 4 },
   error: { color: '#EF4444', marginTop: 20 },

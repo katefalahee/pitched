@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { View, Text, TextInput, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native'
 import { searchUsers, followUser, unfollowUser, getFollowing } from './lib/api'
+import Header from './Header'
 
-export default function FindPeople({ onBack }: { onBack: () => void }) {
+export default function FindPeople({ onMenu }: { onMenu: () => void }) {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<any[]>([])
   const [following, setFollowing] = useState<string[]>([])
@@ -44,10 +45,7 @@ export default function FindPeople({ onBack }: { onBack: () => void }) {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity onPress={onBack}>
-        <Text style={styles.back}>← Back</Text>
-      </TouchableOpacity>
-      <Text style={styles.heading}>Find People</Text>
+      <Header onMenu={onMenu} subtitle="Search for people to follow by username" />
 
       <TextInput
         style={styles.input}
@@ -96,7 +94,7 @@ export default function FindPeople({ onBack }: { onBack: () => void }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#13151A', paddingHorizontal: 16, paddingTop: 70 },
+  container: { flex: 1 },
   back: { color: '#A8AEBE', fontSize: 15, marginBottom: 16 },
   heading: { fontSize: 32, fontWeight: '700', color: '#F4F5F7', marginBottom: 16 },
   input: { backgroundColor: '#1C1F27', borderWidth: 1, borderColor: '#2E3240', borderRadius: 12, padding: 14, color: '#F4F5F7', fontSize: 16 },

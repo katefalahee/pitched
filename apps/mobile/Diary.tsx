@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
 import { View, Text, FlatList, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native'
 import { getUserLogs } from './lib/api'
+import Header from './Header'
 
-export default function Diary({ userId, onBack }: { userId: string; onBack: () => void }) {
+
+export default function Diary({ userId, onMenu }: { userId: string; onMenu: () => void }) {
   const [logs, setLogs] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -16,11 +18,10 @@ export default function Diary({ userId, onBack }: { userId: string; onBack: () =
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity onPress={onBack}>
-        <Text style={styles.back}>← Back</Text>
-      </TouchableOpacity>
-      <Text style={styles.heading}>My Diary</Text>
-      <Text style={styles.subheading}>{logs.length} match{logs.length === 1 ? '' : 'es'} logged</Text>
+      <Header
+        onMenu={onMenu}
+        subtitle={`Your match diary — ${logs.length} logged so far`}
+      />
 
       {loading && <ActivityIndicator color="#10B981" style={{ marginTop: 40 }} />}
       {error && <Text style={styles.error}>Error: {error}</Text>}
@@ -59,7 +60,7 @@ export default function Diary({ userId, onBack }: { userId: string; onBack: () =
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#13151A', paddingHorizontal: 16, paddingTop: 70 },
+  container: { flex: 1 },
   back: { color: '#A8AEBE', fontSize: 15, marginBottom: 16 },
   heading: { fontSize: 32, fontWeight: '700', color: '#F4F5F7' },
   subheading: { fontSize: 13, color: '#A8AEBE', marginTop: 4 },

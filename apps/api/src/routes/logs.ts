@@ -30,6 +30,11 @@ export async function logRoutes(app: FastifyInstance) {
       .single()
 
     if (error) {
+      // 23505 = unique constraint violation → they've already logged this match
+      if (error.code === '23505') {
+        return reply.status(409).send({ error: "You've already logged this match." })
+      }
+      console.error('CREATE LOG ERROR:', error)
       return reply.status(400).send({ error: error.message })
     }
     return reply.status(201).send(data)

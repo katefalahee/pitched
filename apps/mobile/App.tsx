@@ -5,6 +5,7 @@ import { getMatches } from './lib/api'
 import { supabase } from './lib/supabase'
 import Login from './Login'
 import LogMatch from './LogMatch'
+import Diary from './Diary'
 import type { Session } from '@supabase/supabase-js'
 
 export default function App() {
@@ -46,6 +47,7 @@ function MatchList({ session }: { session: Session }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [selectedMatch, setSelectedMatch] = useState<any | null>(null)
+  const [showDiary, setShowDiary] = useState(false)
 
   function loadMatches() {
     getMatches()
@@ -73,6 +75,10 @@ function MatchList({ session }: { session: Session }) {
     )
   }
 
+  if (showDiary) {
+    return <Diary userId={session.user.id} onBack={() => setShowDiary(false)} />
+  }
+
   return (
     <View style={styles.container}>
       <StatusBar style="light" />
@@ -81,9 +87,14 @@ function MatchList({ session }: { session: Session }) {
           <Text style={styles.heading}>Pitched</Text>
           <Text style={styles.subheading}>{session.user.email}</Text>
         </View>
-        <TouchableOpacity onPress={() => supabase.auth.signOut()}>
-          <Text style={styles.signout}>Sign out</Text>
-        </TouchableOpacity>
+        <View style={{ alignItems: 'flex-end' }}>
+          <TouchableOpacity onPress={() => setShowDiary(true)}>
+            <Text style={styles.diaryLink}>My Diary →</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => supabase.auth.signOut()}>
+            <Text style={styles.signout}>Sign out</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       {loading && <ActivityIndicator color="#10B981" style={{ marginTop: 40 }} />}
@@ -128,4 +139,5 @@ const styles = StyleSheet.create({
   score: { fontSize: 15, color: '#10B981', fontWeight: '600' },
   upcoming: { fontSize: 13, color: '#F59E0B' },
   tapHint: { color: '#10B981', fontSize: 12, marginTop: 8 },
+  diaryLink: { color: '#10B981', fontSize: 14, marginBottom: 8 },
 })

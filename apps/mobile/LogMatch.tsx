@@ -34,7 +34,6 @@ export default function LogMatch({ match, userId, onDone, onCancel }: {
     setSaving(true)
     try {
       await createLog({
-        user_id: userId,
         match_id: match.id,
         rating,
         review: review || undefined,

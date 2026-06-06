@@ -1,5 +1,6 @@
 // The laptop's local network IP — the phone reaches the API here.
-const API_URL = 'http://192.168.0.29:4000'
+import { API_URL } from './config'
+import { supabase } from './supabase'
 
 export async function getMatches() {
   const res = await fetch(`${API_URL}/v1/matches`)
@@ -9,15 +10,20 @@ export async function getMatches() {
 }
 
 export async function createLog(log: {
-  user_id: string
   match_id: string
   rating: number
   review?: string
   moods?: string[]
 }) {
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session) throw new Error('Not signed in')
+
   const res = await fetch(`${API_URL}/v1/logs`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${session.access_token}`,
+    },
     body: JSON.stringify(log),
   })
   if (!res.ok) {

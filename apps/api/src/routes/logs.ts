@@ -1,9 +1,9 @@
 import type { FastifyInstance } from 'fastify'
 import { z } from 'zod'
 import { supabase } from '../db/supabase'
+import { requireUser } from '../middleware/auth'
 
 const CreateLogSchema = z.object({
-  user_id: z.string().uuid(),
   match_id: z.string().uuid(),
   rating: z.number().min(0.5).max(5).multipleOf(0.5),
   review: z.string().max(2000).optional(),
@@ -15,15 +15,17 @@ const CreateLogSchema = z.object({
 
 export async function logRoutes(app: FastifyInstance) {
   // POST /v1/logs — create a new match log
-  app.post('/', async (req, reply) => {
+  // POST /v1/logs — create a new match log
+  app.post('/', { preHandler: requireUser }, async (req, reply) => {
     const parsed = CreateLogSchema.safeParse(req.body)
     if (!parsed.success) {
       return reply.status(400).send({ error: 'Invalid data', details: parsed.error.issues })
     }
 
+    const userId = (req as any).userId
     const { data, error } = await supabase
       .from('match_logs')
-      .insert(parsed.data)
+      .insert({ ...parsed.data, user_id: userId })
       .select()
       .single()
 

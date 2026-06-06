@@ -90,3 +90,23 @@ export async function getFeed() {
   const data = await res.json()
   return data.logs
 }
+
+export async function getMyProfile() {
+  const res = await fetch(`${API_URL}/v1/users/me`, { headers: await authHeader() })
+  if (!res.ok) throw new Error('Failed to load profile')
+  return res.json()
+}
+
+export async function getFollowers() {
+  const res = await fetch(`${API_URL}/v1/users/followers`, { headers: await authHeader() })
+  if (!res.ok) throw new Error('Failed to load followers')
+  const data = await res.json()
+  return data.followers
+}
+
+export async function getFollowingList() {
+  const res = await fetch(`${API_URL}/v1/users/following-list`, { headers: await authHeader() })
+  if (!res.ok) throw new Error('Failed to load following')
+  const data = await res.json()
+  return data.following
+}

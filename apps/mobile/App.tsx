@@ -9,9 +9,10 @@ import Feed from './Feed'
 import FindPeople from './FindPeople'
 import LogMatch from './LogMatch'
 import Header from './Header'
+import Profile from './Profile'
 import type { Session } from '@supabase/supabase-js'
 
-type Screen = 'matches' | 'diary' | 'feed' | 'find'
+type Screen = 'matches' | 'diary' | 'feed' | 'find' | 'profile'
 
 export default function App() {
   const [session, setSession] = useState<Session | null>(null)
@@ -65,6 +66,7 @@ function Main({ session }: { session: Session }) {
       {screen === 'diary' && <Diary userId={session.user.id} onMenu={openMenu} />}
       {screen === 'feed' && <Feed onMenu={openMenu} />}
       {screen === 'find' && <FindPeople onMenu={openMenu} />}
+      {screen === 'profile' && <Profile onMenu={openMenu} onOpenDiary={() => setScreen('diary')} />}
 
       {/* Slide-over menu, available on every screen */}
       <Modal visible={menuOpen} transparent animationType="fade" onRequestClose={() => setMenuOpen(false)}>
@@ -72,7 +74,7 @@ function Main({ session }: { session: Session }) {
           <View style={styles.menuPanel}>
             <TouchableOpacity
               style={styles.menuUser}
-              onPress={() => { setMenuOpen(false); Alert.alert('Profile', 'Profile screen coming soon.') }}
+              onPress={() => go('profile')}
             >
               <View style={styles.menuAvatar}>
                 <Text style={styles.menuAvatarText}>{(session.user.email ?? '?').charAt(0).toUpperCase()}</Text>

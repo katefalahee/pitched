@@ -3,6 +3,7 @@ import cors from '@fastify/cors'
 import { venueRoutes } from './routes/venues'
 import { matchRoutes } from './routes/matches'
 import { logRoutes } from './routes/logs'
+import { userRoutes } from './routes/users'
 import 'dotenv/config'
 
 const app = Fastify({ logger: true })
@@ -22,6 +23,7 @@ async function start() {
   await app.register(venueRoutes, { prefix: '/v1/venues' })
   await app.register(matchRoutes, { prefix: '/v1/matches' })
   await app.register(logRoutes, { prefix: '/v1/logs' })
+  await app.register(userRoutes, { prefix: '/v1/users' })
 
   try {
     await app.listen({ port: 4000, host: '0.0.0.0' })

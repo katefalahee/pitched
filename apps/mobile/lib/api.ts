@@ -39,3 +39,45 @@ export async function getUserLogs(userId: string) {
   const data = await res.json()
   return data.logs
 }
+
+async function authHeader() {
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session) throw new Error('Not signed in')
+  return { Authorization: `Bearer ${session.access_token}` }
+}
+
+export async function searchUsers(q: string) {
+  const res = await fetch(`${API_URL}/v1/users/search?q=${encodeURIComponent(q)}`, {
+    headers: await authHeader(),
+  })
+  if (!res.ok) throw new Error('Search failed')
+  const data = await res.json()
+  return data.users
+}
+
+export async function followUser(userId: string) {
+  const res = await fetch(`${API_URL}/v1/users/${userId}/follow`, {
+    method: 'POST',
+    headers: await authHeader(),
+  })
+  if (!res.ok) throw new Error('Follow failed')
+  return res.json()
+}
+
+export async function unfollowUser(userId: string) {
+  const res = await fetch(`${API_URL}/v1/users/${userId}/follow`, {
+    method: 'DELETE',
+    headers: await authHeader(),
+  })
+  if (!res.ok) throw new Error('Unfollow failed')
+  return res.json()
+}
+
+export async function getFollowing() {
+  const res = await fetch(`${API_URL}/v1/users/following`, {
+    headers: await authHeader(),
+  })
+  if (!res.ok) throw new Error('Failed to load following')
+  const data = await res.json()
+  return data.following
+}

@@ -11,10 +11,11 @@ import LogMatch from './LogMatch'
 import Header from './Header'
 import Profile from './Profile'
 import UserProfile from './UserProfile'
+import AddMatch from './AddMatch'
 import type { Session } from '@supabase/supabase-js'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 
-type Screen = 'matches' | 'diary' | 'feed' | 'find' | 'profile' | 'user'
+type Screen = 'matches' | 'diary' | 'feed' | 'find' | 'profile' | 'user' | 'addmatch'
 
 export default function App() {
   const [session, setSession] = useState<Session | null>(null)
@@ -74,6 +75,14 @@ return (
         {screen === 'find' && <FindPeople onMenu={openMenu} onOpenUser={openUser} />}
         {screen === 'profile' && <Profile onMenu={openMenu} onOpenDiary={() => setScreen('diary')} onOpenUser={openUser} />}
         {screen === 'user' && viewUserId && (<UserProfile userId={viewUserId} onMenu={openMenu} onBack={() => setScreen(userBackTo)} />)}
+        {screen === 'addmatch' && (
+        <AddMatch
+          onMenu={openMenu}
+          onBack={() => setScreen('matches')}
+          onPickMatch={(m) => { setSelectedMatch(m); setScreen('matches') }}
+          onCreateNew={() => Alert.alert('Add match', 'The add-match form is coming next.')}
+        />
+      )}
       </View>
 
       {/* Persistent bottom navigation */}
@@ -84,8 +93,16 @@ return (
         <TouchableOpacity style={styles.bottomItem} onPress={() => setScreen('diary')}>
           <MaterialCommunityIcons name="book-open-variant" size={26} color={screen === 'diary' ? '#10B981' : '#6B7183'} />
         </TouchableOpacity>
+        <TouchableOpacity style={styles.bottomItem} onPress={() => setScreen('addmatch')}>
+          <View style={styles.addButton}>
+            <MaterialCommunityIcons name="plus" size={26} color="#000" />
+          </View>
+        </TouchableOpacity>
         <TouchableOpacity style={styles.bottomItem} onPress={() => setScreen('feed')}>
           <MaterialCommunityIcons name="pulse" size={26} color={screen === 'feed' ? '#10B981' : '#6B7183'} />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.bottomItem} onPress={() => setScreen('profile')}>
+          <MaterialCommunityIcons name="account" size={26} color={screen === 'profile' ? '#10B981' : '#6B7183'} />
         </TouchableOpacity>
       </View>
 
@@ -111,18 +128,6 @@ return (
             <TouchableOpacity style={[styles.menuItem, styles.menuItemRow]} onPress={() => go('find')}>
               <MaterialCommunityIcons name="magnify" size={20} color="#F4F5F7" />
               <Text style={styles.menuItemText}>Find people</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.menuItem, styles.menuItemRow]} onPress={() => go('matches')}>
-              <MaterialCommunityIcons name="stadium-variant" size={20} color="#F4F5F7" />
-              <Text style={styles.menuItemText}>Matches</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.menuItem, styles.menuItemRow]} onPress={() => go('diary')}>
-              <MaterialCommunityIcons name="book-open-variant" size={20} color="#F4F5F7" />
-              <Text style={styles.menuItemText}>My Diary</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.menuItem, styles.menuItemRow]} onPress={() => go('feed')}>
-              <MaterialCommunityIcons name="pulse" size={20} color="#F4F5F7" />
-              <Text style={styles.menuItemText}>Feed</Text>
             </TouchableOpacity>
 
             <View style={styles.menuDivider} />
@@ -216,4 +221,5 @@ const styles = StyleSheet.create({
   bottomIcon: { fontSize: 24, opacity: 0.45 },
   bottomIconOn: { opacity: 1 },
   menuItemRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  addButton: { width: 46, height: 46, borderRadius: 23, backgroundColor: '#10B981', alignItems: 'center', justifyContent: 'center', marginTop: -4 },
 })

@@ -116,3 +116,12 @@ export async function getUserProfile(userId: string) {
   if (!res.ok) throw new Error('Failed to load profile')
   return res.json()
 }
+
+export async function searchMatches(q: string) {
+  const res = await fetch(`${API_URL}/v1/matches/search?q=${encodeURIComponent(q)}`, {
+    headers: await authHeader(),
+  })
+  if (!res.ok) throw new Error('Search failed')
+  const data = await res.json()
+  return data.matches
+}

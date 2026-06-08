@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
-import { View, Text, FlatList, StyleSheet, ActivityIndicator, RefreshControl } from 'react-native'
+import { View, Text, FlatList, StyleSheet, ActivityIndicator, RefreshControl, TouchableOpacity } from 'react-native'
 import { getUserLogs } from './lib/api'
+import { MaterialCommunityIcons } from '@expo/vector-icons'
 import Header from './Header'
 
 
-export default function Diary({ userId, onMenu }: { userId: string; onMenu: () => void }) {
+export default function Diary({ userId, onMenu, onOpenEntry }: { userId: string; onMenu: () => void; onOpenEntry: (entry: any) => void }) {
   const [logs, setLogs] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
@@ -54,10 +55,17 @@ export default function Diary({ userId, onMenu }: { userId: string; onMenu: () =
               />
         }
         renderItem={({ item }) => (
-          <View style={styles.card}>
-            <Text style={styles.teams}>
-              {item.match.home_team.name} v {item.match.away_team.name}
-            </Text>
+          <TouchableOpacity style={styles.card} onPress={() => onOpenEntry(item)}>
+            <View style={styles.cardTop}>
+              <Text style={[styles.teams, { flex: 1 }]}>
+                {item.match.home_team.name} v {item.match.away_team.name}
+              </Text>
+              <MaterialCommunityIcons
+                name={item.visibility === 'private' ? 'lock' : item.visibility === 'friends' ? 'account-group' : 'earth'}
+                size={15}
+                color="#6B7183"
+              />
+            </View>
             <Text style={styles.meta}>{item.match.venue.name}</Text>
             <Text style={styles.stars}>
               {'★'.repeat(Math.floor(item.rating))}
@@ -72,7 +80,7 @@ export default function Diary({ userId, onMenu }: { userId: string; onMenu: () =
                 ))}
               </View>
             )}
-          </View>
+          </TouchableOpacity>
         )}
       />
     </View>
@@ -95,4 +103,5 @@ const styles = StyleSheet.create({
   review: { fontSize: 14, color: '#A8AEBE', fontStyle: 'italic', lineHeight: 20, marginBottom: 8 },
   moodRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
   moodChip: { fontSize: 11, color: '#F59E0B', backgroundColor: 'rgba(245,158,11,0.12)', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 50, overflow: 'hidden' },
+  cardTop: { flexDirection: 'row', alignItems: 'flex-start', gap: 8 },
 })

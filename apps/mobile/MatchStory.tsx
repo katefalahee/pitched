@@ -62,15 +62,11 @@ export default function MatchStory({ matchId, onBack, onLog }: {
 
               <View style={styles.fixtureRow}>
                 <Text style={styles.team}>{match.home_team.name}</Text>
-                {match.home_score ? (
-                  <Text style={styles.score}>{match.home_score}</Text>
-                ) : (
-                  <Text style={styles.vs}>v</Text>
-                )}
+                {match.home_score && match.away_score ? <Text style={styles.score}>{match.home_score}</Text> : null}
               </View>
               <View style={styles.fixtureRow}>
                 <Text style={styles.team}>{match.away_team.name}</Text>
-                {match.away_score ? <Text style={styles.score}>{match.away_score}</Text> : null}
+                {match.home_score && match.away_score ? <Text style={styles.score}>{match.away_score}</Text> : null}
               </View>
 
               <View style={styles.metaRow}>

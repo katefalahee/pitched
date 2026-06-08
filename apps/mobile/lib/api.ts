@@ -14,6 +14,7 @@ export async function createLog(log: {
   rating: number
   review?: string
   moods?: string[]
+  visibility?: string
 }) {
   const { data: { session } } = await supabase.auth.getSession()
   if (!session) throw new Error('Not signed in')

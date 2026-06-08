@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator, Alert } from 'react-native'
 import { createLog, updateLog } from './lib/api'
+import { MaterialCommunityIcons } from '@expo/vector-icons'
 
 const MOODS = ['electric', 'emotional', 'tense', 'proud', 'heartbreak', 'joyful', 'dramatic', 'disappointing']
 
@@ -14,6 +15,7 @@ export default function LogMatch({ match, userId, existingLog, onDone, onCancel 
   const [rating, setRating] = useState(existingLog ? Number(existingLog.rating) : 0)
   const [review, setReview] = useState(existingLog?.review ?? '')
   const [moods, setMoods] = useState<string[]>(existingLog?.moods ?? [])
+  const [visibility, setVisibility] = useState<string>(existingLog?.visibility ?? 'public')
 
   // When editing, sync fields once the existing log is available
   useEffect(() => {
@@ -21,6 +23,7 @@ export default function LogMatch({ match, userId, existingLog, onDone, onCancel 
       setRating(Number(existingLog.rating))
       setReview(existingLog.review ?? '')
       setMoods(existingLog.moods ?? [])
+      setVisibility(existingLog.visibility ?? 'public')
     }
   }, [existingLog])
 
@@ -48,6 +51,7 @@ export default function LogMatch({ match, userId, existingLog, onDone, onCancel 
           rating,
           review: review || undefined,
           moods: moods.length > 0 ? moods : undefined,
+          visibility,
         })
       } else {
         await createLog({
@@ -55,6 +59,7 @@ export default function LogMatch({ match, userId, existingLog, onDone, onCancel 
           rating,
           review: review || undefined,
           moods: moods.length > 0 ? moods : undefined,
+          visibility,
         })
       }
       onDone()
@@ -105,6 +110,28 @@ export default function LogMatch({ match, userId, existingLog, onDone, onCancel 
         ))}
       </View>
 
+      <Text style={styles.label}>Who can see this?</Text>
+      <View style={styles.visRow}>
+        {[
+          { key: 'public', icon: 'earth', label: 'Everyone' },
+          { key: 'friends', icon: 'account-group', label: 'Followers' },
+          { key: 'private', icon: 'lock', label: 'Only me' },
+        ].map((opt) => (
+          <TouchableOpacity
+            key={opt.key}
+            style={[styles.visOption, visibility === opt.key && styles.visOptionOn]}
+            onPress={() => setVisibility(opt.key)}
+          >
+            <MaterialCommunityIcons
+              name={opt.icon as any}
+              size={20}
+              color={visibility === opt.key ? '#10B981' : '#6B7183'}
+            />
+            <Text style={[styles.visLabel, visibility === opt.key && styles.visLabelOn]}>{opt.label}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+
       <TouchableOpacity style={styles.button} onPress={save} disabled={saving}>
         {saving ? <ActivityIndicator color="#000" /> : <Text style={styles.buttonText}>{existingLog ? 'Update memory' : 'Save to Diary'}</Text>}
       </TouchableOpacity>
@@ -127,6 +154,11 @@ const styles = StyleSheet.create({
   moodChipOn: { backgroundColor: 'rgba(245,158,11,0.12)', borderColor: 'rgba(245,158,11,0.4)' },
   moodText: { color: '#A8AEBE', fontSize: 13 },
   moodTextOn: { color: '#F59E0B' },
-  button: { backgroundColor: '#10B981', borderRadius: 13, padding: 16, alignItems: 'center' },
+  button: { backgroundColor: '#10B981', borderRadius: 13, padding: 16, alignItems: 'center', marginTop: 28 },
   buttonText: { color: '#000', fontSize: 16, fontWeight: '600' },
+  visRow: { flexDirection: 'row', gap: 8 },
+  visOption: { flex: 1, alignItems: 'center', gap: 6, paddingVertical: 14, borderRadius: 12, borderWidth: 1, borderColor: '#2E3240', backgroundColor: '#1C1F27' },
+  visOptionOn: { borderColor: 'rgba(16,185,129,0.5)', backgroundColor: 'rgba(16,185,129,0.08)' },
+  visLabel: { fontSize: 12, color: '#6B7183', fontWeight: '500' },
+  visLabelOn: { color: '#10B981' },
 })

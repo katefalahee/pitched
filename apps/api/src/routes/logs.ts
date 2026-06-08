@@ -11,6 +11,7 @@ const CreateLogSchema = z.object({
     'electric', 'emotional', 'tense', 'proud',
     'heartbreak', 'joyful', 'dramatic', 'disappointing'
   ])).max(3).optional(),
+  visibility: z.enum(['public', 'friends', 'private']).optional(),
 })
 
 export async function logRoutes(app: FastifyInstance) {

@@ -14,10 +14,11 @@ import UserProfile from './UserProfile'
 import AddMatch from './AddMatch'
 import CreateMatch from './CreateMatch'
 import MatchStory from './MatchStory'
+import MemoryDetail from './MemoryDetail'
 import type { Session } from '@supabase/supabase-js'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 
-type Screen = 'matches' | 'diary' | 'feed' | 'find' | 'profile' | 'user' | 'addmatch' | 'creatematch' | 'story'
+type Screen = 'matches' | 'diary' | 'feed' | 'find' | 'profile' | 'user' | 'addmatch' | 'creatematch' | 'story' | 'memory'
 
 export default function App() {
   const [session, setSession] = useState<Session | null>(null)
@@ -47,6 +48,8 @@ function Main({ session }: { session: Session }) {
   const [viewUserId, setViewUserId] = useState<string | null>(null)
   const [storyMatch, setStoryMatch] = useState<any | null>(null)
   const [editingLog, setEditingLog] = useState<any | null>(null)
+  const [memoryEntry, setMemoryEntry] = useState<any | null>(null)
+  const [logReturnTo, setLogReturnTo] = useState<Screen>('matches')
 
   const openMenu = () => setMenuOpen(true)
   const go = (s: Screen) => { setMenuOpen(false); setScreen(s) }
@@ -61,11 +64,11 @@ function Main({ session }: { session: Session }) {
         match={selectedMatch}
         userId={session.user.id}
         existingLog={editingLog}
-        onCancel={() => { setSelectedMatch(null); setEditingLog(null); setScreen('matches') }}
+        onCancel={() => { setSelectedMatch(null); setEditingLog(null); setScreen(logReturnTo) }}
         onDone={() => {
           setSelectedMatch(null)
           setEditingLog(null)
-          setScreen('matches')
+          setScreen(logReturnTo)
           Alert.alert(editingLog ? 'Updated!' : 'Logged!', editingLog ? 'Your memory has been updated.' : 'Your match has been saved to your diary.')
         }}
       />
@@ -78,7 +81,13 @@ return (
 
       <View style={{ flex: 1 }}>
         {screen === 'matches' && <Matches session={session} onMenu={openMenu} onPick={openStory} />}
-        {screen === 'diary' && <Diary userId={session.user.id} onMenu={openMenu} />}
+        {screen === 'diary' && (
+        <Diary
+          userId={session.user.id}
+          onMenu={openMenu}
+          onOpenEntry={(entry) => { setMemoryEntry(entry); setScreen('memory') }}
+        />
+      )}
         {screen === 'feed' && <Feed onMenu={openMenu} />}
         {screen === 'find' && <FindPeople onMenu={openMenu} onOpenUser={openUser} />}
         {screen === 'profile' && <Profile onMenu={openMenu} onOpenDiary={() => setScreen('diary')} onOpenUser={openUser} />}
@@ -103,7 +112,14 @@ return (
         <MatchStory
           matchId={storyMatch.id}
           onBack={() => setScreen('matches')}
-          onLog={(match, existingLog) => { setSelectedMatch(match); setEditingLog(existingLog); setStoryMatch(null) }}
+          onLog={(match, existingLog) => { setSelectedMatch(match); setEditingLog(existingLog); setStoryMatch(null); setLogReturnTo('matches'); }}
+        />
+      )}
+      {screen === 'memory' && memoryEntry && (
+        <MemoryDetail
+          entry={memoryEntry}
+          onBack={() => setScreen('diary')}
+          onEdit={() => { setSelectedMatch(memoryEntry.match); setEditingLog(memoryEntry); setLogReturnTo('memory'); }}
         />
       )}
       </View>

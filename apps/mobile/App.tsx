@@ -13,10 +13,11 @@ import Profile from './Profile'
 import UserProfile from './UserProfile'
 import AddMatch from './AddMatch'
 import CreateMatch from './CreateMatch'
+import MatchStory from './MatchStory'
 import type { Session } from '@supabase/supabase-js'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 
-type Screen = 'matches' | 'diary' | 'feed' | 'find' | 'profile' | 'user' | 'addmatch' | 'creatematch'
+type Screen = 'matches' | 'diary' | 'feed' | 'find' | 'profile' | 'user' | 'addmatch' | 'creatematch' | 'story'
 
 export default function App() {
   const [session, setSession] = useState<Session | null>(null)
@@ -44,11 +45,13 @@ function Main({ session }: { session: Session }) {
   const [menuOpen, setMenuOpen] = useState(false)
   const [selectedMatch, setSelectedMatch] = useState<any | null>(null)
   const [viewUserId, setViewUserId] = useState<string | null>(null)
+  const [storyMatch, setStoryMatch] = useState<any | null>(null)
 
   const openMenu = () => setMenuOpen(true)
   const go = (s: Screen) => { setMenuOpen(false); setScreen(s) }
   const [userBackTo, setUserBackTo] = useState<Screen>('find')
   const openUser = (id: string) => { setMenuOpen(false); setUserBackTo(screen); setViewUserId(id); setScreen('user') }
+  const openStory = (match: any) => { setMenuOpen(false); setStoryMatch(match); setScreen('story') }
 
   // The logging screen sits on top of everything when a match is selected
   if (selectedMatch) {
@@ -70,7 +73,7 @@ return (
       <StatusBar style="light" />
 
       <View style={{ flex: 1 }}>
-        {screen === 'matches' && <Matches session={session} onMenu={openMenu} onPick={setSelectedMatch} />}
+        {screen === 'matches' && <Matches session={session} onMenu={openMenu} onPick={openStory} />}
         {screen === 'diary' && <Diary userId={session.user.id} onMenu={openMenu} />}
         {screen === 'feed' && <Feed onMenu={openMenu} />}
         {screen === 'find' && <FindPeople onMenu={openMenu} onOpenUser={openUser} />}
@@ -80,7 +83,7 @@ return (
         <AddMatch
           onMenu={openMenu}
           onBack={() => setScreen('matches')}
-          onPickMatch={(m) => { setSelectedMatch(m); setScreen('matches') }}
+          onPickMatch={(m) => openStory(m)}
           onCreateNew={() => setScreen('creatematch')}
         />
       )}
@@ -90,6 +93,13 @@ return (
           onBack={() => setScreen('addmatch')}
           onCreated={(id) => { setScreen('matches'); Alert.alert('Match added!', 'It\'s now on Pitched. You can log your memory of it from search.') }}
           onExisting={(id) => setScreen('addmatch')}
+        />
+      )}
+      {screen === 'story' && storyMatch && (
+        <MatchStory
+          matchId={storyMatch.id}
+          onBack={() => setScreen('matches')}
+          onLog={(match, existingLog) => { setSelectedMatch(match); setStoryMatch(null) }}
         />
       )}
       </View>

@@ -66,6 +66,74 @@ export async function matchRoutes(app: FastifyInstance) {
     return { matches: data }
   })
 
+  // GET /v1/matches/:id/story — the Match Story: facts + aggregate pulse + all public logs
+  app.get('/:id/story', { preHandler: requireUser }, async (req, reply) => {
+    const me = (req as any).userId
+    const { id } = req.params as { id: string }
+
+    // The match facts
+    const { data: match, error: matchErr } = await supabase
+      .from('matches')
+      .select(`
+        *,
+        home_team:teams!matches_home_team_id_fkey(*),
+        away_team:teams!matches_away_team_id_fkey(*),
+        venue:venues(*),
+        competition:competitions(*)
+      `)
+      .eq('id', id)
+      .single()
+
+    if (matchErr || !match) {
+      return reply.status(404).send({ error: 'Match not found' })
+    }
+
+    // All public logs for this match, with author
+    const { data: logs, error: logErr } = await supabase
+      .from('match_logs')
+      .select(`
+        *,
+        user:users!match_logs_user_id_fkey(id, username, display_name)
+      `)
+      .eq('match_id', id)
+      .eq('visibility', 'public')
+      .order('logged_at', { ascending: false })
+
+    if (logErr) {
+      console.error('MATCH STORY LOGS ERROR:', logErr)
+      return reply.status(400).send({ error: logErr.message })
+    }
+
+    // Compute the aggregate "pulse"
+    const allLogs = logs ?? []
+    const count = allLogs.length
+    const avgRating = count > 0
+      ? Math.round((allLogs.reduce((sum, l) => sum + Number(l.rating), 0) / count) * 10) / 10
+      : null
+
+    // Tally moods across everyone, return the most common
+    const moodTally: Record<string, number> = {}
+    for (const l of allLogs) {
+      for (const m of (l.moods ?? [])) {
+        moodTally[m] = (moodTally[m] ?? 0) + 1
+      }
+    }
+    const topMoods = Object.entries(moodTally)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3)
+      .map(([mood, n]) => ({ mood, count: n }))
+
+    // Has the current user already logged this?
+    const myLog = allLogs.find((l) => l.user?.id === me) ?? null
+
+    return {
+      match,
+      pulse: { count, avgRating, topMoods },
+      logs: allLogs,
+      hasLogged: !!myLog,
+    }
+  })
+
   // GET /v1/matches/:id — single match with everything attached
   app.get('/:id', async (req, reply) => {
     const { id } = req.params as { id: string }
@@ -91,7 +159,6 @@ export async function matchRoutes(app: FastifyInstance) {
   app.post('/', { preHandler: requireUser }, async (req, reply) => {
     const b = req.body as any
 
-    // Required fields per the agreed design
     if (!b.home_team_id || !b.away_team_id || !b.competition_id || !b.venue_id || !b.kickoff_at || !b.sport) {
       return reply.status(400).send({ error: 'Missing required fields' })
     }
@@ -116,9 +183,7 @@ export async function matchRoutes(app: FastifyInstance) {
       .single()
 
     if (error) {
-      // 23505 = the uniqueness constraint fired → this match already exists
       if (error.code === '23505') {
-        // Find the existing one so we can point the user to it
         const { data: existing } = await supabase
           .from('matches')
           .select('id')

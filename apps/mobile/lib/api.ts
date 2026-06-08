@@ -173,3 +173,9 @@ export async function createMatch(match: {
   }
   return data
 }
+
+export async function getMatchStory(matchId: string) {
+  const res = await fetch(`${API_URL}/v1/matches/${matchId}/story`, { headers: await authHeader() })
+  if (!res.ok) throw new Error('Failed to load match story')
+  return res.json()
+}

@@ -125,3 +125,51 @@ export async function searchMatches(q: string) {
   const data = await res.json()
   return data.matches
 }
+
+export async function getTeams(sport: string) {
+  const res = await fetch(`${API_URL}/v1/teams?sport=${sport}`, { headers: await authHeader() })
+  if (!res.ok) throw new Error('Failed to load teams')
+  const data = await res.json()
+  return data.teams
+}
+
+export async function getCompetitions(sport: string) {
+  const res = await fetch(`${API_URL}/v1/competitions?sport=${sport}`, { headers: await authHeader() })
+  if (!res.ok) throw new Error('Failed to load competitions')
+  const data = await res.json()
+  return data.competitions
+}
+
+export async function getVenues() {
+  const res = await fetch(`${API_URL}/v1/venues`, { headers: await authHeader() })
+  if (!res.ok) throw new Error('Failed to load venues')
+  const data = await res.json()
+  return data.venues
+}
+
+export async function createMatch(match: {
+  home_team_id: string
+  away_team_id: string
+  competition_id: string
+  venue_id: string
+  kickoff_at: string
+  sport: string
+  home_score?: string
+  away_score?: string
+  status?: string
+}) {
+  const res = await fetch(`${API_URL}/v1/matches`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+    body: JSON.stringify(match),
+  })
+  const data = await res.json()
+  if (!res.ok) {
+    // 409 = already exists; pass back the existing id so we can redirect
+    const err: any = new Error(data.error || 'Failed to create match')
+    err.existingId = data.existingId
+    err.status = res.status
+    throw err
+  }
+  return data
+}

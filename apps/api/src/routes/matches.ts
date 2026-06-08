@@ -1,5 +1,6 @@
 import type { FastifyInstance } from 'fastify'
 import { supabase } from '../db/supabase'
+import { requireUser } from '../middleware/auth'
 
 export async function matchRoutes(app: FastifyInstance) {
   // GET /v1/matches — list matches with their related teams, venue, competition
@@ -84,5 +85,52 @@ export async function matchRoutes(app: FastifyInstance) {
       return reply.status(404).send({ error: 'Match not found' })
     }
     return data
+  })
+
+  // POST /v1/matches — create a new match (with server-side duplicate check)
+  app.post('/', { preHandler: requireUser }, async (req, reply) => {
+    const b = req.body as any
+
+    // Required fields per the agreed design
+    if (!b.home_team_id || !b.away_team_id || !b.competition_id || !b.venue_id || !b.kickoff_at || !b.sport) {
+      return reply.status(400).send({ error: 'Missing required fields' })
+    }
+    if (b.home_team_id === b.away_team_id) {
+      return reply.status(400).send({ error: 'Home and away teams must be different' })
+    }
+
+    const { data, error } = await supabase
+      .from('matches')
+      .insert({
+        home_team_id: b.home_team_id,
+        away_team_id: b.away_team_id,
+        competition_id: b.competition_id,
+        venue_id: b.venue_id,
+        kickoff_at: b.kickoff_at,
+        sport: b.sport,
+        home_score: b.home_score ?? null,
+        away_score: b.away_score ?? null,
+        status: b.status ?? 'upcoming',
+      })
+      .select('id')
+      .single()
+
+    if (error) {
+      // 23505 = the uniqueness constraint fired → this match already exists
+      if (error.code === '23505') {
+        // Find the existing one so we can point the user to it
+        const { data: existing } = await supabase
+          .from('matches')
+          .select('id')
+          .eq('home_team_id', b.home_team_id)
+          .eq('away_team_id', b.away_team_id)
+          .eq('kickoff_at', b.kickoff_at)
+          .single()
+        return reply.status(409).send({ error: 'This match already exists', existingId: existing?.id })
+      }
+      console.error('CREATE MATCH ERROR:', error)
+      return reply.status(400).send({ error: error.message })
+    }
+    return reply.status(201).send({ id: data.id })
   })
 }

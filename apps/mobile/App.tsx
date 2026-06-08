@@ -12,10 +12,11 @@ import Header from './Header'
 import Profile from './Profile'
 import UserProfile from './UserProfile'
 import AddMatch from './AddMatch'
+import CreateMatch from './CreateMatch'
 import type { Session } from '@supabase/supabase-js'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 
-type Screen = 'matches' | 'diary' | 'feed' | 'find' | 'profile' | 'user' | 'addmatch'
+type Screen = 'matches' | 'diary' | 'feed' | 'find' | 'profile' | 'user' | 'addmatch' | 'creatematch'
 
 export default function App() {
   const [session, setSession] = useState<Session | null>(null)
@@ -80,7 +81,15 @@ return (
           onMenu={openMenu}
           onBack={() => setScreen('matches')}
           onPickMatch={(m) => { setSelectedMatch(m); setScreen('matches') }}
-          onCreateNew={() => Alert.alert('Add match', 'The add-match form is coming next.')}
+          onCreateNew={() => setScreen('creatematch')}
+        />
+      )}
+      {screen === 'creatematch' && (
+        <CreateMatch
+          onMenu={openMenu}
+          onBack={() => setScreen('addmatch')}
+          onCreated={(id) => { setScreen('matches'); Alert.alert('Match added!', 'It\'s now on Pitched. You can log your memory of it from search.') }}
+          onExisting={(id) => setScreen('addmatch')}
         />
       )}
       </View>

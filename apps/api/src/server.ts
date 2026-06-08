@@ -4,6 +4,8 @@ import { venueRoutes } from './routes/venues'
 import { matchRoutes } from './routes/matches'
 import { logRoutes } from './routes/logs'
 import { userRoutes } from './routes/users'
+import { teamRoutes } from './routes/teams'
+import { competitionRoutes } from './routes/competitions'
 import 'dotenv/config'
 
 const app = Fastify({ logger: true })
@@ -24,6 +26,8 @@ async function start() {
   await app.register(matchRoutes, { prefix: '/v1/matches' })
   await app.register(logRoutes, { prefix: '/v1/logs' })
   await app.register(userRoutes, { prefix: '/v1/users' })
+  await app.register(teamRoutes, { prefix: '/v1/teams' })
+  await app.register(competitionRoutes, { prefix: '/v1/competitions' })
 
   try {
     await app.listen({ port: 4000, host: '0.0.0.0' })

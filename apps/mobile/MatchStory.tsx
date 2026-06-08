@@ -152,7 +152,7 @@ export default function MatchStory({ matchId, onBack, onLog }: {
 
       {/* ── PINNED ACTION: Log / Edit ────────── */}
       <View style={styles.actionBar}>
-        <TouchableOpacity style={styles.logButton} onPress={() => onLog(match, null)}>
+        <TouchableOpacity style={styles.logButton} onPress={() => onLog(match, data.myLog)}>
           <MaterialCommunityIcons name={hasLogged ? 'pencil' : 'plus'} size={20} color="#000" />
           <Text style={styles.logButtonText}>{hasLogged ? 'Edit your memory' : 'Log this match'}</Text>
         </TouchableOpacity>

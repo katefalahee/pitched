@@ -1,18 +1,28 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator, Alert } from 'react-native'
-import { createLog } from './lib/api'
+import { createLog, updateLog } from './lib/api'
 
 const MOODS = ['electric', 'emotional', 'tense', 'proud', 'heartbreak', 'joyful', 'dramatic', 'disappointing']
 
-export default function LogMatch({ match, userId, onDone, onCancel }: {
+export default function LogMatch({ match, userId, existingLog, onDone, onCancel }: {
   match: any
   userId: string
+  existingLog?: any | null
   onDone: () => void
   onCancel: () => void
 }) {
-  const [rating, setRating] = useState(0)
-  const [review, setReview] = useState('')
-  const [moods, setMoods] = useState<string[]>([])
+  const [rating, setRating] = useState(existingLog ? Number(existingLog.rating) : 0)
+  const [review, setReview] = useState(existingLog?.review ?? '')
+  const [moods, setMoods] = useState<string[]>(existingLog?.moods ?? [])
+
+  // When editing, sync fields once the existing log is available
+  useEffect(() => {
+    if (existingLog) {
+      setRating(Number(existingLog.rating))
+      setReview(existingLog.review ?? '')
+      setMoods(existingLog.moods ?? [])
+    }
+  }, [existingLog])
 
   function toggleMood(m: string) {
     setMoods((current) => {
@@ -33,12 +43,20 @@ export default function LogMatch({ match, userId, onDone, onCancel }: {
     }
     setSaving(true)
     try {
-      await createLog({
-        match_id: match.id,
-        rating,
-        review: review || undefined,
-        moods: moods.length > 0 ? moods : undefined,
-      })
+      if (existingLog) {
+        await updateLog(existingLog.id, {
+          rating,
+          review: review || undefined,
+          moods: moods.length > 0 ? moods : undefined,
+        })
+      } else {
+        await createLog({
+          match_id: match.id,
+          rating,
+          review: review || undefined,
+          moods: moods.length > 0 ? moods : undefined,
+        })
+      }
       onDone()
     } catch (e: any) {
       Alert.alert('Hold on', e.message)
@@ -88,7 +106,7 @@ export default function LogMatch({ match, userId, onDone, onCancel }: {
       </View>
 
       <TouchableOpacity style={styles.button} onPress={save} disabled={saving}>
-        {saving ? <ActivityIndicator color="#000" /> : <Text style={styles.buttonText}>Save to Diary</Text>}
+        {saving ? <ActivityIndicator color="#000" /> : <Text style={styles.buttonText}>{existingLog ? 'Update memory' : 'Save to Diary'}</Text>}
       </TouchableOpacity>
     </ScrollView>
   )

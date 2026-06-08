@@ -15,7 +15,6 @@ const CreateLogSchema = z.object({
 
 export async function logRoutes(app: FastifyInstance) {
   // POST /v1/logs — create a new match log
-  // POST /v1/logs — create a new match log
   app.post('/', { preHandler: requireUser }, async (req, reply) => {
     const parsed = CreateLogSchema.safeParse(req.body)
     if (!parsed.success) {
@@ -38,6 +37,45 @@ export async function logRoutes(app: FastifyInstance) {
       return reply.status(400).send({ error: error.message })
     }
     return reply.status(201).send(data)
+  })
+
+  // PATCH /v1/logs/:id — edit your own log
+  app.patch('/:id', { preHandler: requireUser }, async (req, reply) => {
+    const me = (req as any).userId
+    const { id } = req.params as { id: string }
+    const b = req.body as any
+
+    // Only allow editing your own log
+    const { data: existing, error: findErr } = await supabase
+      .from('match_logs')
+      .select('user_id')
+      .eq('id', id)
+      .single()
+
+    if (findErr || !existing) {
+      return reply.status(404).send({ error: 'Log not found' })
+    }
+    if (existing.user_id !== me) {
+      return reply.status(403).send({ error: 'You can only edit your own log' })
+    }
+
+    const { data, error } = await supabase
+      .from('match_logs')
+      .update({
+        rating: b.rating,
+        review: b.review ?? null,
+        moods: b.moods ?? [],
+        visibility: b.visibility ?? 'public',
+      })
+      .eq('id', id)
+      .select()
+      .single()
+
+    if (error) {
+      console.error('UPDATE LOG ERROR:', error)
+      return reply.status(400).send({ error: error.message })
+    }
+    return data
   })
 
   // GET /v1/logs/user/:userId — all logs for one user (their diary)

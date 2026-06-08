@@ -46,6 +46,7 @@ function Main({ session }: { session: Session }) {
   const [selectedMatch, setSelectedMatch] = useState<any | null>(null)
   const [viewUserId, setViewUserId] = useState<string | null>(null)
   const [storyMatch, setStoryMatch] = useState<any | null>(null)
+  const [editingLog, setEditingLog] = useState<any | null>(null)
 
   const openMenu = () => setMenuOpen(true)
   const go = (s: Screen) => { setMenuOpen(false); setScreen(s) }
@@ -59,10 +60,13 @@ function Main({ session }: { session: Session }) {
       <LogMatch
         match={selectedMatch}
         userId={session.user.id}
-        onCancel={() => setSelectedMatch(null)}
+        existingLog={editingLog}
+        onCancel={() => { setSelectedMatch(null); setEditingLog(null); setScreen('matches') }}
         onDone={() => {
           setSelectedMatch(null)
-          Alert.alert('Logged!', 'Your match has been saved to your diary.')
+          setEditingLog(null)
+          setScreen('matches')
+          Alert.alert(editingLog ? 'Updated!' : 'Logged!', editingLog ? 'Your memory has been updated.' : 'Your match has been saved to your diary.')
         }}
       />
     )
@@ -99,7 +103,7 @@ return (
         <MatchStory
           matchId={storyMatch.id}
           onBack={() => setScreen('matches')}
-          onLog={(match, existingLog) => { setSelectedMatch(match); setStoryMatch(null) }}
+          onLog={(match, existingLog) => { setSelectedMatch(match); setEditingLog(existingLog); setStoryMatch(null) }}
         />
       )}
       </View>

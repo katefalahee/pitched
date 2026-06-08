@@ -131,6 +131,7 @@ export async function matchRoutes(app: FastifyInstance) {
       pulse: { count, avgRating, topMoods },
       logs: allLogs,
       hasLogged: !!myLog,
+      myLog,
     }
   })
 

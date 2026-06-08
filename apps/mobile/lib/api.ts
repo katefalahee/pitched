@@ -179,3 +179,21 @@ export async function getMatchStory(matchId: string) {
   if (!res.ok) throw new Error('Failed to load match story')
   return res.json()
 }
+
+export async function updateLog(logId: string, log: {
+  rating: number
+  review?: string
+  moods?: string[]
+  visibility?: string
+}) {
+  const res = await fetch(`${API_URL}/v1/logs/${logId}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+    body: JSON.stringify(log),
+  })
+  if (!res.ok) {
+    const err = await res.json()
+    throw new Error(err.error || 'Failed to update log')
+  }
+  return res.json()
+}

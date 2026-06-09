@@ -228,3 +228,21 @@ export async function removeFromBucket(venueId: string) {
   if (!res.ok) throw new Error('Failed to remove from bucket list')
   return res.json()
 }
+
+export async function followGround(venueId: string) {
+  const res = await fetch(`${API_URL}/v1/venues/${venueId}/follow`, {
+    method: 'POST',
+    headers: await authHeader(),
+  })
+  if (!res.ok) throw new Error('Failed to follow ground')
+  return res.json()
+}
+
+export async function unfollowGround(venueId: string) {
+  const res = await fetch(`${API_URL}/v1/venues/${venueId}/follow`, {
+    method: 'DELETE',
+    headers: await authHeader(),
+  })
+  if (!res.ok) throw new Error('Failed to unfollow ground')
+  return res.json()
+}

@@ -109,7 +109,7 @@ export async function venueRoutes(app: FastifyInstance) {
       .eq('match.venue_id', id)
       .limit(1)
 
-      // Is it on my bucket-list?
+    // Is it on my bucket-list?
     const { data: inBucket } = await supabase
       .from('bucket_list')
       .select('venue_id')
@@ -117,11 +117,27 @@ export async function venueRoutes(app: FastifyInstance) {
       .eq('venue_id', id)
       .maybeSingle()
 
+    // Am I following this ground?
+    const { data: following } = await supabase
+      .from('ground_follows')
+      .select('venue_id')
+      .eq('user_id', me)
+      .eq('venue_id', id)
+      .maybeSingle()
+
+    // How many people follow it?
+    const { count: followerCount } = await supabase
+      .from('ground_follows')
+      .select('*', { count: 'exact', head: true })
+      .eq('venue_id', id)
+
     return {
       venue,
       matches: matches ?? [],
       visited: (myVisit ?? []).length > 0,
       wishlist: !!inBucket,
+      following: !!following,
+      followerCount: followerCount ?? 0,
     }
   })
 
@@ -132,7 +148,7 @@ export async function venueRoutes(app: FastifyInstance) {
     const { error } = await supabase
       .from('bucket_list')
       .insert({ user_id: me, venue_id: id })
-    if (error && error.code !== '23505') { // ignore "already there"
+    if (error && error.code !== '23505') {
       console.error('BUCKET ADD ERROR:', error)
       return reply.status(400).send({ error: error.message })
     }
@@ -150,6 +166,36 @@ export async function venueRoutes(app: FastifyInstance) {
       .eq('venue_id', id)
     if (error) {
       console.error('BUCKET REMOVE ERROR:', error)
+      return reply.status(400).send({ error: error.message })
+    }
+    return { ok: true }
+  })
+
+  // POST /v1/venues/:id/follow — follow a ground
+  app.post('/:id/follow', { preHandler: requireUser }, async (req, reply) => {
+    const me = (req as any).userId
+    const { id } = req.params as { id: string }
+    const { error } = await supabase
+      .from('ground_follows')
+      .insert({ user_id: me, venue_id: id })
+    if (error && error.code !== '23505') {
+      console.error('GROUND FOLLOW ERROR:', error)
+      return reply.status(400).send({ error: error.message })
+    }
+    return { ok: true }
+  })
+
+  // DELETE /v1/venues/:id/follow — unfollow a ground
+  app.delete('/:id/follow', { preHandler: requireUser }, async (req, reply) => {
+    const me = (req as any).userId
+    const { id } = req.params as { id: string }
+    const { error } = await supabase
+      .from('ground_follows')
+      .delete()
+      .eq('user_id', me)
+      .eq('venue_id', id)
+    if (error) {
+      console.error('GROUND UNFOLLOW ERROR:', error)
       return reply.status(400).send({ error: error.message })
     }
     return { ok: true }

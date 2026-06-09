@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, ActivityIndicator, TouchableOpacity
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { getGroundDetail } from './lib/api'
 import { addToBucket, removeFromBucket } from './lib/api'
+import { followGround, unfollowGround } from './lib/api'
 
 export default function GroundDetail({ venueId, onBack, onOpenMatch }: {
   venueId: string
@@ -12,13 +13,33 @@ export default function GroundDetail({ venueId, onBack, onOpenMatch }: {
   const [data, setData] = useState<any | null>(null)
   const [loading, setLoading] = useState(true)
   const [wishlist, setWishlist] = useState(false)
+  const [following, setFollowing] = useState(false)
+  const [followerCount, setFollowerCount] = useState(0)
 
   useEffect(() => {
     getGroundDetail(venueId)
-      .then((d) => { setData(d); setWishlist(d.wishlist) })
+      .then((d) => {
+        setData(d)
+        setWishlist(d.wishlist)
+        setFollowing(d.following)
+        setFollowerCount(d.followerCount ?? 0)
+      })
       .catch(() => {})
       .finally(() => setLoading(false))
   }, [venueId])
+
+  async function toggleFollow() {
+    const was = following
+    setFollowing(!was)
+    setFollowerCount((c) => c + (was ? -1 : 1)) // optimistic count update
+    try {
+      if (was) await unfollowGround(venueId)
+      else await followGround(venueId)
+    } catch {
+      setFollowing(was)
+      setFollowerCount((c) => c + (was ? 1 : -1))
+    }
+  }
 
   async function toggleBucket() {
     const was = wishlist
@@ -75,6 +96,25 @@ export default function GroundDetail({ venueId, onBack, onOpenMatch }: {
                 </Text>
               </TouchableOpacity>
             </>
+          )}
+          <TouchableOpacity
+            style={[styles.followBtn, following && styles.followBtnOn]}
+            onPress={toggleFollow}
+          >
+            <MaterialCommunityIcons
+              name={following ? 'bell' : 'bell-outline'}
+              size={18}
+              color={following ? '#13151A' : '#10B981'}
+            />
+            <Text style={[styles.followText, following && styles.followTextOn]}>
+              {following ? 'Following' : 'Follow ground'}
+            </Text>
+          </TouchableOpacity>
+
+          {followerCount > 0 && (
+            <Text style={styles.followerCount}>
+              {followerCount} {followerCount === 1 ? 'follower' : 'followers'}
+            </Text>
           )}
         </View>
 
@@ -138,4 +178,9 @@ const styles = StyleSheet.create({
   bucketBtnOn: { backgroundColor: '#C9A24B', borderColor: '#C9A24B' },
   bucketText: { color: '#C9A24B', fontSize: 14, fontWeight: '600' },
   bucketTextOn: { color: '#13151A', fontWeight: '700' },
+  followBtn: { flexDirection: 'row', alignItems: 'center', gap: 8, borderWidth: 1, borderColor: 'rgba(16,185,129,0.5)', borderRadius: 50, paddingHorizontal: 20, paddingVertical: 10, marginTop: 12 },
+  followBtnOn: { backgroundColor: '#10B981', borderColor: '#10B981' },
+  followText: { color: '#10B981', fontSize: 14, fontWeight: '600' },
+  followTextOn: { color: '#13151A', fontWeight: '700' },
+  followerCount: { color: '#6B7183', fontSize: 12, marginTop: 10 },
 })

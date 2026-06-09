@@ -52,10 +52,18 @@ export async function venueRoutes(app: FastifyInstance) {
       }
     }
 
+    // The user's bucket-list venue ids
+    const { data: bucket } = await supabase
+      .from('bucket_list')
+      .select('venue_id')
+      .eq('user_id', me)
+    const bucketed = new Set((bucket ?? []).map((b) => b.venue_id))
+
     const result = (venues ?? []).map((v) => ({
       ...v,
       visited: !!visited[v.id],
       first_visit: visited[v.id] ?? null,
+      wishlist: bucketed.has(v.id),
     }))
 
     const visitedCount = result.filter((v) => v.visited).length
@@ -101,10 +109,49 @@ export async function venueRoutes(app: FastifyInstance) {
       .eq('match.venue_id', id)
       .limit(1)
 
+      // Is it on my bucket-list?
+    const { data: inBucket } = await supabase
+      .from('bucket_list')
+      .select('venue_id')
+      .eq('user_id', me)
+      .eq('venue_id', id)
+      .maybeSingle()
+
     return {
       venue,
       matches: matches ?? [],
       visited: (myVisit ?? []).length > 0,
+      wishlist: !!inBucket,
     }
+  })
+
+  // POST /v1/venues/:id/bucket — add a ground to my bucket-list
+  app.post('/:id/bucket', { preHandler: requireUser }, async (req, reply) => {
+    const me = (req as any).userId
+    const { id } = req.params as { id: string }
+    const { error } = await supabase
+      .from('bucket_list')
+      .insert({ user_id: me, venue_id: id })
+    if (error && error.code !== '23505') { // ignore "already there"
+      console.error('BUCKET ADD ERROR:', error)
+      return reply.status(400).send({ error: error.message })
+    }
+    return { ok: true }
+  })
+
+  // DELETE /v1/venues/:id/bucket — remove from my bucket-list
+  app.delete('/:id/bucket', { preHandler: requireUser }, async (req, reply) => {
+    const me = (req as any).userId
+    const { id } = req.params as { id: string }
+    const { error } = await supabase
+      .from('bucket_list')
+      .delete()
+      .eq('user_id', me)
+      .eq('venue_id', id)
+    if (error) {
+      console.error('BUCKET REMOVE ERROR:', error)
+      return reply.status(400).send({ error: error.message })
+    }
+    return { ok: true }
   })
 }

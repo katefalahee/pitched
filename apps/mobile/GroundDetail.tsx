@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { View, Text, StyleSheet, ScrollView, ActivityIndicator, TouchableOpacity } from 'react-native'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { getGroundDetail } from './lib/api'
+import { addToBucket, removeFromBucket } from './lib/api'
 
 export default function GroundDetail({ venueId, onBack, onOpenMatch }: {
   venueId: string
@@ -10,10 +11,25 @@ export default function GroundDetail({ venueId, onBack, onOpenMatch }: {
 }) {
   const [data, setData] = useState<any | null>(null)
   const [loading, setLoading] = useState(true)
+  const [wishlist, setWishlist] = useState(false)
 
   useEffect(() => {
-    getGroundDetail(venueId).then(setData).catch(() => {}).finally(() => setLoading(false))
+    getGroundDetail(venueId)
+      .then((d) => { setData(d); setWishlist(d.wishlist) })
+      .catch(() => {})
+      .finally(() => setLoading(false))
   }, [venueId])
+
+  async function toggleBucket() {
+    const was = wishlist
+    setWishlist(!was) // optimistic
+    try {
+      if (was) await removeFromBucket(venueId)
+      else await addToBucket(venueId)
+    } catch {
+      setWishlist(was) // revert on failure
+    }
+  }
 
   if (loading) return <View style={styles.center}><ActivityIndicator color="#10B981" /></View>
   if (!data) return <View style={styles.center}><Text style={styles.err}>Couldn't load this ground.</Text></View>
@@ -40,10 +56,25 @@ export default function GroundDetail({ venueId, onBack, onOpenMatch }: {
               <Text style={styles.visitedText}>Visited — stamped in your passport</Text>
             </View>
           ) : (
-            <View style={styles.notVisitedBadge}>
-              <MaterialCommunityIcons name="map-marker-outline" size={16} color="#6B7183" />
-              <Text style={styles.notVisitedText}>Not yet visited</Text>
-            </View>
+            <>
+              <View style={styles.notVisitedBadge}>
+                <MaterialCommunityIcons name="map-marker-outline" size={16} color="#6B7183" />
+                <Text style={styles.notVisitedText}>Not yet visited</Text>
+              </View>
+              <TouchableOpacity
+                style={[styles.bucketBtn, wishlist && styles.bucketBtnOn]}
+                onPress={toggleBucket}
+              >
+                <MaterialCommunityIcons
+                  name={wishlist ? 'bookmark-check' : 'bookmark-plus-outline'}
+                  size={18}
+                  color={wishlist ? '#13151A' : '#C9A24B'}
+                />
+                <Text style={[styles.bucketText, wishlist && styles.bucketTextOn]}>
+                  {wishlist ? 'On your bucket list' : 'Add to bucket list'}
+                </Text>
+              </TouchableOpacity>
+            </>
           )}
         </View>
 
@@ -103,4 +134,8 @@ const styles = StyleSheet.create({
   matchRow: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#1C1F27', borderRadius: 12, padding: 14, marginBottom: 10, borderWidth: 1, borderColor: '#2E3240' },
   matchTeams: { color: '#F4F5F7', fontSize: 15, fontWeight: '600' },
   matchDate: { color: '#6B7183', fontSize: 12, marginTop: 3 },
+  bucketBtn: { flexDirection: 'row', alignItems: 'center', gap: 8, borderWidth: 1, borderColor: 'rgba(201,162,75,0.5)', borderRadius: 50, paddingHorizontal: 18, paddingVertical: 10, marginTop: 12 },
+  bucketBtnOn: { backgroundColor: '#C9A24B', borderColor: '#C9A24B' },
+  bucketText: { color: '#C9A24B', fontSize: 14, fontWeight: '600' },
+  bucketTextOn: { color: '#13151A', fontWeight: '700' },
 })

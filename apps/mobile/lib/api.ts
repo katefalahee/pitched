@@ -210,3 +210,21 @@ export async function getGroundDetail(venueId: string) {
   if (!res.ok) throw new Error('Failed to load ground')
   return res.json()
 }
+
+export async function addToBucket(venueId: string) {
+  const res = await fetch(`${API_URL}/v1/venues/${venueId}/bucket`, {
+    method: 'POST',
+    headers: await authHeader(),
+  })
+  if (!res.ok) throw new Error('Failed to add to bucket list')
+  return res.json()
+}
+
+export async function removeFromBucket(venueId: string) {
+  const res = await fetch(`${API_URL}/v1/venues/${venueId}/bucket`, {
+    method: 'DELETE',
+    headers: await authHeader(),
+  })
+  if (!res.ok) throw new Error('Failed to remove from bucket list')
+  return res.json()
+}

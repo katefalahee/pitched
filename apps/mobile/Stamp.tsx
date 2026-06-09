@@ -1,4 +1,5 @@
 import { View, Text, StyleSheet } from 'react-native'
+import { MaterialCommunityIcons } from '@expo/vector-icons'
 
 // Deterministic pick so each ground always gets the same stamp colour + rotation
 function hashString(s: string) {
@@ -16,12 +17,15 @@ export default function Stamp({ venue, visited }: { venue: any; visited: boolean
   const rotation = ROTATIONS[h % ROTATIONS.length]
 
   if (!visited) {
-    // Unvisited: a faded, dashed placeholder — waiting to be earned
+    const wished = venue.wishlist
     return (
       <View style={styles.slot}>
-        <View style={[styles.stampOuter, styles.unvisitedOuter]}>
-          <Text style={styles.unvisitedName} numberOfLines={2}>{venue.name}</Text>
-          {venue.county ? <Text style={styles.unvisitedCounty}>{venue.county}</Text> : null}
+        <View style={[styles.stampOuter, styles.unvisitedOuter, wished && styles.wishlistOuter]}>
+          {wished && (
+            <MaterialCommunityIcons name="bookmark" size={14} color="#C9A24B" style={styles.wishIcon} />
+          )}
+          <Text style={[styles.unvisitedName, wished && styles.wishlistName]} numberOfLines={2}>{venue.name}</Text>
+          {venue.county ? <Text style={[styles.unvisitedCounty, wished && styles.wishlistCounty]}>{venue.county}</Text> : null}
         </View>
       </View>
     )
@@ -67,4 +71,10 @@ const styles = StyleSheet.create({
   unvisitedOuter: { width: '80%', height: '90%', borderWidth: 1.5, borderColor: '#2A2E38', borderRadius: 14, borderStyle: 'dashed', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 10, opacity: 0.55 },
   unvisitedName: { color: '#4B5160', fontSize: 13, fontWeight: '600', textAlign: 'center', lineHeight: 16 },
   unvisitedCounty: { color: '#3A3F4B', fontSize: 9, marginTop: 4, letterSpacing: 1 },
+
+  // Wishlist "tag" for unvisited grounds
+  wishlistOuter: { borderColor: 'rgba(201,162,75,0.6)', borderStyle: 'dashed', opacity: 0.95 },
+  wishlistName: { color: '#C9A24B' },
+  wishlistCounty: { color: 'rgba(201,162,75,0.7)' },
+  wishIcon: { position: 'absolute', top: 8, right: 10 },
 })

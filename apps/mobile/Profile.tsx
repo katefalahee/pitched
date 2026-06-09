@@ -2,8 +2,10 @@ import { useEffect, useState } from 'react'
 import { View, Text, FlatList, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native'
 import Header from './Header'
 import { getMyProfile, getFollowers, getFollowingList } from './lib/api'
+import Passport from './Passport'
+import { MaterialCommunityIcons } from '@expo/vector-icons'
 
-export default function Profile({ onMenu, onOpenDiary, onOpenUser }: { onMenu: () => void; onOpenDiary: () => void; onOpenUser: (id: string) => void }) {
+export default function Profile({ onMenu, onOpenDiary, onOpenUser, onOpenGround, activeTab, onChangeTab }: { onMenu: () => void; onOpenDiary: () => void; onOpenUser: (id: string) => void; onOpenGround: (venueId: string) => void; activeTab: 'memories' | 'passport'; onChangeTab: (t: 'memories' | 'passport') => void }) {
   const [data, setData] = useState<any | null>(null)
   const [following, setFollowing] = useState<any[]>([])
   const [followers, setFollowers] = useState<any[]>([])
@@ -33,6 +35,7 @@ export default function Profile({ onMenu, onOpenDiary, onOpenUser }: { onMenu: (
 
       {data && (
         <>
+          {/* Profile card */}
           <View style={styles.profileCard}>
             <View style={styles.avatar}>
               <Text style={styles.avatarText}>
@@ -70,27 +73,44 @@ export default function Profile({ onMenu, onOpenDiary, onOpenUser }: { onMenu: (
             </View>
           </View>
 
-          <FlatList
-            data={list}
-            keyExtractor={(item) => item.id}
-            contentContainerStyle={{ paddingBottom: 40 }}
-            ListEmptyComponent={
-              <Text style={styles.empty}>
-                {tab === 'following' ? 'You aren\'t following anyone yet.' : 'No followers yet.'}
-              </Text>
-            }
-            renderItem={({ item }) => (
-              <TouchableOpacity style={styles.personRow} onPress={() => onOpenUser(item.id)}>
-                <View style={styles.smallAvatar}>
-                  <Text style={styles.smallAvatarText}>{item.username.charAt(0).toUpperCase()}</Text>
-                </View>
-                <View>
-                  <Text style={styles.personName}>@{item.username}</Text>
-                  {item.display_name ? <Text style={styles.personSub}>{item.display_name}</Text> : null}
-                </View>
-              </TouchableOpacity>
-            )}
-          />
+          {/* Tabs */}
+          <View style={styles.profileTabs}>
+            <TouchableOpacity style={styles.pTab} onPress={() => onChangeTab('memories')}>
+              <MaterialCommunityIcons name="book-open-variant" size={18} color={activeTab === 'memories' ? '#10B981' : '#6B7183'} />
+              <Text style={[styles.pTabText, activeTab === 'memories' && styles.pTabTextOn]}>Connections</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.pTab} onPress={() => onChangeTab('passport')}>
+              <MaterialCommunityIcons name="passport" size={18} color={activeTab === 'passport' ? '#10B981' : '#6B7183'} />
+              <Text style={[styles.pTabText, activeTab === 'passport' && styles.pTabTextOn]}>Passport</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Tab content */}
+          {activeTab === 'memories' ? (
+            <FlatList
+              data={list}
+              keyExtractor={(item) => item.id}
+              contentContainerStyle={{ paddingBottom: 100 }}
+              ListEmptyComponent={
+                <Text style={styles.empty}>
+                  {tab === 'following' ? 'You aren\'t following anyone yet.' : 'No followers yet.'}
+                </Text>
+              }
+              renderItem={({ item }) => (
+                <TouchableOpacity style={styles.personRow} onPress={() => onOpenUser(item.id)}>
+                  <View style={styles.smallAvatar}>
+                    <Text style={styles.smallAvatarText}>{item.username.charAt(0).toUpperCase()}</Text>
+                  </View>
+                  <View>
+                    <Text style={styles.personName}>@{item.username}</Text>
+                    {item.display_name ? <Text style={styles.personSub}>{item.display_name}</Text> : null}
+                  </View>
+                </TouchableOpacity>
+              )}
+            />
+          ) : (
+            <Passport onOpenGround={onOpenGround} />
+          )}
         </>
       )}
     </View>
@@ -119,4 +139,8 @@ const styles = StyleSheet.create({
   smallAvatarText: { color: '#000', fontWeight: '700', fontSize: 16 },
   personName: { color: '#F4F5F7', fontSize: 15, fontWeight: '600' },
   personSub: { color: '#6B7183', fontSize: 12, marginTop: 2 },
+  profileTabs: { flexDirection: 'row', gap: 8, marginBottom: 16, marginTop: 4 },
+  pTab: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 12, borderRadius: 10, backgroundColor: '#1C1F27', borderWidth: 1, borderColor: '#2E3240' },
+  pTabText: { color: '#6B7183', fontSize: 14, fontWeight: '600' },
+  pTabTextOn: { color: '#10B981' },
 })

@@ -198,3 +198,15 @@ export async function updateLog(logId: string, log: {
   }
   return res.json()
 }
+
+export async function getPassport() {
+  const res = await fetch(`${API_URL}/v1/venues/passport`, { headers: await authHeader() })
+  if (!res.ok) throw new Error('Failed to load passport')
+  return res.json()
+}
+
+export async function getGroundDetail(venueId: string) {
+  const res = await fetch(`${API_URL}/v1/venues/${venueId}/detail`, { headers: await authHeader() })
+  if (!res.ok) throw new Error('Failed to load ground')
+  return res.json()
+}

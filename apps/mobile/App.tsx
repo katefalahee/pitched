@@ -15,10 +15,11 @@ import AddMatch from './AddMatch'
 import CreateMatch from './CreateMatch'
 import MatchStory from './MatchStory'
 import MemoryDetail from './MemoryDetail'
+import GroundDetail from './GroundDetail'
 import type { Session } from '@supabase/supabase-js'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 
-type Screen = 'matches' | 'diary' | 'feed' | 'find' | 'profile' | 'user' | 'addmatch' | 'creatematch' | 'story' | 'memory'
+type Screen = 'matches' | 'diary' | 'feed' | 'find' | 'profile' | 'user' | 'addmatch' | 'creatematch' | 'story' | 'memory' | 'ground'
 
 export default function App() {
   const [session, setSession] = useState<Session | null>(null)
@@ -50,12 +51,14 @@ function Main({ session }: { session: Session }) {
   const [editingLog, setEditingLog] = useState<any | null>(null)
   const [memoryEntry, setMemoryEntry] = useState<any | null>(null)
   const [logReturnTo, setLogReturnTo] = useState<Screen>('matches')
+  const [groundId, setGroundId] = useState<string | null>(null)
 
   const openMenu = () => setMenuOpen(true)
   const go = (s: Screen) => { setMenuOpen(false); setScreen(s) }
   const [userBackTo, setUserBackTo] = useState<Screen>('find')
   const openUser = (id: string) => { setMenuOpen(false); setUserBackTo(screen); setViewUserId(id); setScreen('user') }
   const openStory = (match: any) => { setMenuOpen(false); setStoryMatch(match); setScreen('story') }
+  const [profileTab, setProfileTab] = useState<'memories' | 'passport'>('memories')
 
   // The logging screen sits on top of everything when a match is selected
   if (selectedMatch) {
@@ -90,7 +93,16 @@ return (
       )}
         {screen === 'feed' && <Feed onMenu={openMenu} />}
         {screen === 'find' && <FindPeople onMenu={openMenu} onOpenUser={openUser} />}
-        {screen === 'profile' && <Profile onMenu={openMenu} onOpenDiary={() => setScreen('diary')} onOpenUser={openUser} />}
+        {screen === 'profile' && (
+        <Profile
+          onMenu={openMenu}
+          onOpenDiary={() => setScreen('diary')}
+          onOpenUser={openUser}
+          onOpenGround={(venueId) => { setGroundId(venueId); setScreen('ground') }}
+          activeTab={profileTab}
+          onChangeTab={setProfileTab}
+        />
+      )}
         {screen === 'user' && viewUserId && (<UserProfile userId={viewUserId} onMenu={openMenu} onBack={() => setScreen(userBackTo)} />)}
         {screen === 'addmatch' && (
         <AddMatch
@@ -120,6 +132,13 @@ return (
           entry={memoryEntry}
           onBack={() => setScreen('diary')}
           onEdit={() => { setSelectedMatch(memoryEntry.match); setEditingLog(memoryEntry); setLogReturnTo('memory'); }}
+        />
+      )}
+      {screen === 'ground' && groundId && (
+        <GroundDetail
+          venueId={groundId}
+          onBack={() => setScreen('profile')}
+          onOpenMatch={(match) => openStory(match)}
         />
       )}
       </View>

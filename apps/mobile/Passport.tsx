@@ -1,8 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { View, Text, StyleSheet, ScrollView, ActivityIndicator, TouchableOpacity, RefreshControl } from 'react-native'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import Stamp from './Stamp'
 import { getPassport } from './lib/api'
+import { captureRef } from 'react-native-view-shot'
+import * as Sharing from 'expo-sharing'
+import PassportShareCard from './PassportShareCard'
 
 export default function Passport({ onOpenGround }: { onOpenGround: (venueId: string) => void }) {
   const [data, setData] = useState<any | null>(null)
@@ -14,6 +17,19 @@ export default function Passport({ onOpenGround }: { onOpenGround: (venueId: str
   }
   useEffect(() => { load().finally(() => setLoading(false)) }, [])
   async function onRefresh() { setRefreshing(true); await load(); setRefreshing(false) }
+
+  const shareRef = useRef<View>(null)
+
+  async function sharePassport() {
+    try {
+      const uri = await captureRef(shareRef, { format: 'png', quality: 1 })
+      if (await Sharing.isAvailableAsync()) {
+        await Sharing.shareAsync(uri)
+      }
+    } catch (e) {
+      console.warn('Share failed', e)
+    }
+  }
 
   if (loading) return <View style={styles.center}><ActivityIndicator color="#10B981" /></View>
   if (!data) return <View style={styles.center}><Text style={styles.err}>Couldn't load your passport.</Text></View>
@@ -40,6 +56,11 @@ export default function Passport({ onOpenGround }: { onOpenGround: (venueId: str
           <View style={[styles.progressFill, { width: `${pct}%` }]} />
         </View>
         <Text style={styles.progressPct}>{pct}% collected</Text>
+
+        <TouchableOpacity style={styles.shareBtn} onPress={sharePassport}>
+          <MaterialCommunityIcons name="share-variant" size={16} color="#13151A" />
+          <Text style={styles.shareBtnText}>Share my passport</Text>
+        </TouchableOpacity>
       </View>
 
       {/* Stamp grid */}
@@ -49,6 +70,12 @@ export default function Passport({ onOpenGround }: { onOpenGround: (venueId: str
             <Stamp venue={v} visited={v.visited} />
           </TouchableOpacity>
         ))}
+      </View>
+      {/* Off-screen card used only for sharing */}
+      <View style={styles.offscreen} pointerEvents="none">
+        <View ref={shareRef} collapsable={false}>
+          <PassportShareCard stats={stats} venues={venues} />
+        </View>
       </View>
     </ScrollView>
   )
@@ -70,4 +97,8 @@ const styles = StyleSheet.create({
 
   grid: { flexDirection: 'row', flexWrap: 'wrap' },
   cell: { width: '50%' },
+
+  shareBtn: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: '#C9A24B', borderRadius: 50, paddingHorizontal: 20, paddingVertical: 11, marginTop: 18 },
+  shareBtnText: { color: '#13151A', fontSize: 14, fontWeight: '700' },
+  offscreen: { position: 'absolute', left: -9999, top: 0 },
 })

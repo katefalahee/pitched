@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { View, Text, FlatList, StyleSheet, ActivityIndicator, TouchableOpacity, RefreshControl } from 'react-native'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { getMatchStory } from './lib/api'
+import { colors } from './lib/theme'
 
 // Map each mood to a friendly label + colour for the pulse chips
 const MOOD_STYLE: Record<string, string> = {
@@ -158,54 +159,54 @@ export default function MatchStory({ matchId, onBack, onLog }: {
 }
 
 const styles = StyleSheet.create({
-  center: { flex: 1, backgroundColor: '#13151A', justifyContent: 'center', alignItems: 'center', gap: 16 },
-  error: { color: '#EF4444', fontSize: 14 },
-  backLink: { color: '#10B981', fontSize: 15 },
+  center: { flex: 1, backgroundColor: colors.bg, justifyContent: 'center', alignItems: 'center', gap: 16 },
+  error: { color: colors.danger, fontSize: 14 },
+  backLink: { color: colors.gold, fontSize: 15 },
   backRow: { flexDirection: 'row', alignItems: 'center', paddingTop: 56, paddingBottom: 8 },
-  backText: { color: '#A8AEBE', fontSize: 15 },
+  backText: { color: colors.textSoft, fontSize: 15 },
 
-  hero: { paddingVertical: 20, borderBottomWidth: 1, borderBottomColor: '#1C1F27' },
-  competition: { color: '#10B981', fontSize: 12, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 16 },
+  hero: { paddingVertical: 20, borderBottomWidth: 1, borderBottomColor: colors.surface },
+  competition: { color: colors.gold, fontSize: 12, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 16 },
   fixtureRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 },
-  team: { color: '#F4F5F7', fontSize: 26, fontWeight: '800', flex: 1 },
-  score: { color: '#F4F5F7', fontSize: 26, fontWeight: '800' },
-  vs: { color: '#6B7183', fontSize: 18 },
+  team: { color: colors.text, fontSize: 26, fontWeight: '800', flex: 1 },
+  score: { color: colors.text, fontSize: 26, fontWeight: '800' },
+  vs: { color: colors.textMuted, fontSize: 18 },
   metaRow: { flexDirection: 'row', alignItems: 'center', gap: 7, marginTop: 10 },
-  metaText: { color: '#6B7183', fontSize: 13 },
+  metaText: { color: colors.textMuted, fontSize: 13 },
 
-  pulse: { paddingVertical: 24, borderBottomWidth: 1, borderBottomColor: '#1C1F27' },
+  pulse: { paddingVertical: 24, borderBottomWidth: 1, borderBottomColor: colors.surface },
   pulseStats: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 28 },
   pulseStat: { alignItems: 'center' },
-  pulseNum: { color: '#F4F5F7', fontSize: 32, fontWeight: '800' },
-  pulseLabel: { color: '#6B7183', fontSize: 11, textTransform: 'uppercase', letterSpacing: 1, marginTop: 2 },
-  pulseDivider: { width: 1, height: 40, backgroundColor: '#2E3240' },
+  pulseNum: { color: colors.text, fontSize: 32, fontWeight: '800' },
+  pulseLabel: { color: colors.textMuted, fontSize: 11, textTransform: 'uppercase', letterSpacing: 1, marginTop: 2 },
+  pulseDivider: { width: 1, height: 40, backgroundColor: colors.border },
   moodSection: { marginTop: 24, alignItems: 'center' },
-  moodHeading: { color: '#A8AEBE', fontSize: 13, marginBottom: 12 },
+  moodHeading: { color: colors.textSoft, fontSize: 13, marginBottom: 12 },
   moodChips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, justifyContent: 'center' },
   moodChip: { flexDirection: 'row', alignItems: 'center', gap: 7, borderWidth: 1, borderRadius: 50, paddingHorizontal: 12, paddingVertical: 7 },
   moodDot: { width: 8, height: 8, borderRadius: 4 },
-  moodChipText: { color: '#F4F5F7', fontSize: 13, fontWeight: '500' },
-  moodCount: { color: '#6B7183', fontSize: 12, fontWeight: '600' },
+  moodChipText: { color: colors.text, fontSize: 13, fontWeight: '500' },
+  moodCount: { color: colors.textMuted, fontSize: 12, fontWeight: '600' },
 
-  emptyPulse: { alignItems: 'center', paddingVertical: 36, gap: 12, borderBottomWidth: 1, borderBottomColor: '#1C1F27' },
-  emptyPulseText: { color: '#6B7183', fontSize: 14, textAlign: 'center', lineHeight: 21 },
+  emptyPulse: { alignItems: 'center', paddingVertical: 36, gap: 12, borderBottomWidth: 1, borderBottomColor: colors.surface },
+  emptyPulseText: { color: colors.textMuted, fontSize: 14, textAlign: 'center', lineHeight: 21 },
 
-  sectionTitle: { color: '#F4F5F7', fontSize: 16, fontWeight: '700', marginTop: 24, marginBottom: 4 },
+  sectionTitle: { color: colors.text, fontSize: 16, fontWeight: '700', marginTop: 24, marginBottom: 4 },
 
-  logCard: { backgroundColor: '#1C1F27', borderRadius: 14, padding: 16, marginTop: 12, borderWidth: 1, borderColor: '#2E3240' },
+  logCard: { backgroundColor: colors.surface, borderRadius: 14, padding: 16, marginTop: 12, borderWidth: 1, borderColor: colors.border },
   logHeader: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  logAvatar: { width: 32, height: 32, borderRadius: 16, backgroundColor: '#10B981', alignItems: 'center', justifyContent: 'center' },
-  logAvatarText: { color: '#000', fontWeight: '700', fontSize: 14 },
-  logUser: { color: '#F4F5F7', fontSize: 14, fontWeight: '600', flex: 1 },
-  logRating: { color: '#F59E0B', fontSize: 14 },
-  logRatingOff: { color: '#2E3240' },
-  logReview: { color: '#A8AEBE', fontSize: 14, lineHeight: 21, marginTop: 12 },
+  logAvatar: { width: 32, height: 32, borderRadius: 16, backgroundColor: colors.gold, alignItems: 'center', justifyContent: 'center' },
+  logAvatarText: { color: colors.onGold, fontWeight: '700', fontSize: 14 },
+  logUser: { color: colors.text, fontSize: 14, fontWeight: '600', flex: 1 },
+  logRating: { color: colors.gold, fontSize: 14 },
+  logRatingOff: { color: colors.border },
+  logReview: { color: colors.textSoft, fontSize: 14, lineHeight: 21, marginTop: 12 },
   logMoods: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 12 },
-  logMoodChip: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: '#13151A', borderRadius: 50, paddingHorizontal: 10, paddingVertical: 4 },
+  logMoodChip: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: colors.bg, borderRadius: 50, paddingHorizontal: 10, paddingVertical: 4 },
   moodDotSmall: { width: 6, height: 6, borderRadius: 3 },
-  logMoodText: { color: '#A8AEBE', fontSize: 12 },
+  logMoodText: { color: colors.textSoft, fontSize: 12 },
 
-  actionBar: { position: 'absolute', bottom: 0, left: 0, right: 0, paddingHorizontal: 16, paddingTop: 12, paddingBottom: 28, backgroundColor: '#13151A', borderTopWidth: 1, borderTopColor: '#1C1F27' },
-  logButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: '#10B981', borderRadius: 13, paddingVertical: 16 },
-  logButtonText: { color: '#000', fontSize: 16, fontWeight: '700' },
+  actionBar: { position: 'absolute', bottom: 0, left: 0, right: 0, paddingHorizontal: 16, paddingTop: 12, paddingBottom: 28, backgroundColor: colors.bg, borderTopWidth: 1, borderTopColor: colors.surface },
+  logButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: colors.gold, borderRadius: 13, paddingVertical: 16 },
+  logButtonText: { color: colors.onGold, fontSize: 16, fontWeight: '700' },
 })

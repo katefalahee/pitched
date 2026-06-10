@@ -1,4 +1,5 @@
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
+import { colors } from './lib/theme'
 
 export default function Header({
   title,
@@ -32,12 +33,11 @@ export default function Header({
 const styles = StyleSheet.create({
   wrap: { paddingTop: 56, paddingBottom: 8, paddingHorizontal: 4 },
   row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  wordmarkBig: { fontSize: 26, fontWeight: '800', color: '#F4F5F7', letterSpacing: 2 },
-  wordmarkSmall: { fontSize: 14, fontWeight: '800', color: '#6B7183', letterSpacing: 2 },
-  dot: { color: '#10B981' },
-  tagline: { fontSize: 10, color: '#6B7183', letterSpacing: 3, marginTop: 2 },
+  wordmarkBig: { fontSize: 26, fontWeight: '800', color: colors.text, letterSpacing: 2 },
+  dot: { color: colors.gold },
+  tagline: { fontSize: 10, color: colors.textMuted, letterSpacing: 3, marginTop: 2 },
   menuButton: { padding: 8 },
-  menuIcon: { color: '#F4F5F7', fontSize: 26 },
-  title: { fontSize: 30, fontWeight: '800', color: '#F4F5F7', letterSpacing: 0.5, marginTop: 14 },
-  subtitle: { fontSize: 13, color: '#6B7183', marginTop: 4 },
+  menuIcon: { color: colors.text, fontSize: 26 },
+  title: { fontSize: 30, fontWeight: '800', color: colors.text, letterSpacing: 0.5, marginTop: 14 },
+  subtitle: { fontSize: 13, color: colors.textMuted, marginTop: 4 },
 })

@@ -25,4 +25,6 @@ export const colors = {
   // Functional
   danger: '#C5564A',
   onGold: '#1A1614',       // text/icons on a gold fill
+
+  iconInactive: '#7D7263',   // dim but visible — unselected nav icons
 }

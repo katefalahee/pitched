@@ -16,6 +16,7 @@ import CreateMatch from './CreateMatch'
 import MatchStory from './MatchStory'
 import MemoryDetail from './MemoryDetail'
 import GroundDetail from './GroundDetail'
+import { colors } from './lib/theme'
 import type { Session } from '@supabase/supabase-js'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 
@@ -146,10 +147,10 @@ return (
       {/* Persistent bottom navigation */}
       <View style={styles.bottomBar}>
         <TouchableOpacity style={styles.bottomItem} onPress={() => setScreen('matches')}>
-          <MaterialCommunityIcons name="stadium-variant" size={26} color={screen === 'matches' ? '#10B981' : '#6B7183'} />
+         <MaterialCommunityIcons name="stadium-variant" size={26} color={screen === 'matches' ? colors.gold : colors.iconInactive} />
         </TouchableOpacity>
         <TouchableOpacity style={styles.bottomItem} onPress={() => setScreen('diary')}>
-          <MaterialCommunityIcons name="book-open-variant" size={26} color={screen === 'diary' ? '#10B981' : '#6B7183'} />
+          <MaterialCommunityIcons name="book-open-variant" size={26} color={screen === 'diary' ? colors.gold : colors.iconInactive} />
         </TouchableOpacity>
         <TouchableOpacity style={styles.bottomItem} onPress={() => setScreen('addmatch')}>
           <View style={styles.addButton}>
@@ -157,10 +158,10 @@ return (
           </View>
         </TouchableOpacity>
         <TouchableOpacity style={styles.bottomItem} onPress={() => setScreen('feed')}>
-          <MaterialCommunityIcons name="pulse" size={26} color={screen === 'feed' ? '#10B981' : '#6B7183'} />
+          <MaterialCommunityIcons name="pulse" size={26} color={screen === 'feed' ? colors.gold : colors.iconInactive} />
         </TouchableOpacity>
         <TouchableOpacity style={styles.bottomItem} onPress={() => setScreen('profile')}>
-          <MaterialCommunityIcons name="account" size={26} color={screen === 'profile' ? '#10B981' : '#6B7183'} />
+          <MaterialCommunityIcons name="account" size={26} color={screen === 'profile' ? colors.gold : colors.iconInactive} />
         </TouchableOpacity>
       </View>
 
@@ -184,7 +185,7 @@ return (
             <View style={styles.menuDivider} />
 
             <TouchableOpacity style={[styles.menuItem, styles.menuItemRow]} onPress={() => go('find')}>
-              <MaterialCommunityIcons name="magnify" size={20} color="#F4F5F7" />
+              <MaterialCommunityIcons name="magnify" size={20} color={colors.text} />
               <Text style={styles.menuItemText}>Find people</Text>
             </TouchableOpacity>
 
@@ -254,30 +255,30 @@ function Matches({ session, onMenu, onPick }: { session: Session; onMenu: () => 
 }
 
 const styles = StyleSheet.create({
-  center: { flex: 1, backgroundColor: '#13151A', justifyContent: 'center', alignItems: 'center' },
-  container: { flex: 1, backgroundColor: '#13151A', paddingHorizontal: 16 },
-  error: { color: '#EF4444', marginTop: 20 },
-  card: { backgroundColor: '#1C1F27', borderRadius: 14, padding: 16, marginBottom: 12, borderWidth: 1, borderColor: '#2E3240' },
-  teams: { fontSize: 17, fontWeight: '600', color: '#F4F5F7', marginBottom: 4 },
-  meta: { fontSize: 12, color: '#6B7183', marginBottom: 8 },
-  score: { fontSize: 15, color: '#10B981', fontWeight: '600' },
-  upcoming: { fontSize: 13, color: '#F59E0B' },
-  tapHint: { color: '#10B981', fontSize: 12, marginTop: 8 },
-  menuBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', alignItems: 'flex-end' },
-  menuPanel: { width: 260, backgroundColor: '#1C1F27', height: '100%', paddingTop: 70, paddingHorizontal: 20, borderLeftWidth: 1, borderLeftColor: '#2E3240' },
-  menuUser: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 16 },
-  menuAvatar: { width: 44, height: 44, borderRadius: 22, backgroundColor: '#10B981', alignItems: 'center', justifyContent: 'center' },
-  menuAvatarText: { color: '#000', fontWeight: '700', fontSize: 18 },
-  menuUserLabel: { color: '#6B7183', fontSize: 11, textTransform: 'uppercase', letterSpacing: 1 },
-  menuUserEmail: { color: '#F4F5F7', fontSize: 14, fontWeight: '600', marginTop: 2 },
-  menuDivider: { height: 1, backgroundColor: '#2E3240', marginVertical: 12 },
-  menuItem: { paddingVertical: 14 },
-  menuItemText: { color: '#F4F5F7', fontSize: 16 },
-  menuSignOut: { color: '#EF4444', fontSize: 16 },
-  bottomBar: { flexDirection: 'row', backgroundColor: '#1C1F27', paddingVertical: 14, paddingBottom: 28, marginHorizontal: -16 },
+  center: { flex: 1, backgroundColor: colors.bg, justifyContent: 'center', alignItems: 'center' },
+  container: { flex: 1, backgroundColor: colors.bg, paddingHorizontal: 16 },
+  error: { color: colors.danger, marginTop: 20 },
+  card: { backgroundColor: colors.surface, borderRadius: 14, padding: 16, marginBottom: 12, borderWidth: 1, borderColor: colors.border },
+  teams: { fontSize: 17, fontWeight: '600', color: colors.text, marginBottom: 4 },
+  meta: { fontSize: 12, color: colors.textMuted, marginBottom: 8 },
+  score: { fontSize: 15, color: colors.gold, fontWeight: '600' },
+  upcoming: { fontSize: 13, color: colors.terracotta },
+  tapHint: { color: colors.gold, fontSize: 12, marginTop: 8 },
+
+  bottomBar: { flexDirection: 'row', backgroundColor: colors.surface, paddingVertical: 14, paddingBottom: 28, marginHorizontal: -16 },
   bottomItem: { flex: 1, alignItems: 'center' },
-  bottomIcon: { fontSize: 24, opacity: 0.45 },
-  bottomIconOn: { opacity: 1 },
+  addButton: { width: 46, height: 46, borderRadius: 23, backgroundColor: colors.gold, alignItems: 'center', justifyContent: 'center', marginTop: -4 },
+
+  menuBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', alignItems: 'flex-end' },
+  menuPanel: { width: 260, backgroundColor: colors.surface, height: '100%', paddingTop: 70, paddingHorizontal: 20, borderLeftWidth: 1, borderLeftColor: colors.border },
+  menuUser: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 16 },
+  menuAvatar: { width: 44, height: 44, borderRadius: 22, backgroundColor: colors.gold, alignItems: 'center', justifyContent: 'center' },
+  menuAvatarText: { color: colors.onGold, fontWeight: '700', fontSize: 18 },
+  menuUserLabel: { color: colors.textMuted, fontSize: 11, textTransform: 'uppercase', letterSpacing: 1 },
+  menuUserEmail: { color: colors.text, fontSize: 14, fontWeight: '600', marginTop: 2 },
+  menuDivider: { height: 1, backgroundColor: colors.border, marginVertical: 12 },
+  menuItem: { paddingVertical: 14 },
+  menuItemText: { color: colors.text, fontSize: 16 },
   menuItemRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  addButton: { width: 46, height: 46, borderRadius: 23, backgroundColor: '#10B981', alignItems: 'center', justifyContent: 'center', marginTop: -4 },
+  menuSignOut: { color: colors.danger, fontSize: 16 },
 })

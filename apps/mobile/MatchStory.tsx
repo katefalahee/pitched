@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { View, Text, FlatList, StyleSheet, ActivityIndicator, TouchableOpacity, RefreshControl } from 'react-native'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { getMatchStory } from './lib/api'
-import { colors } from './lib/theme'
+import { colors, fonts } from './lib/theme'
 
 // Map each mood to a friendly label + colour for the pulse chips
 const MOOD_STYLE: Record<string, string> = {
@@ -168,7 +168,7 @@ const styles = StyleSheet.create({
   hero: { paddingVertical: 20, borderBottomWidth: 1, borderBottomColor: colors.surface },
   competition: { color: colors.gold, fontSize: 12, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 16 },
   fixtureRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 },
-  team: { color: colors.text, fontSize: 26, fontWeight: '800', flex: 1 },
+  team: { color: colors.text, fontSize: 26, fontFamily: fonts.serif, flex: 1 },
   score: { color: colors.text, fontSize: 26, fontWeight: '800' },
   vs: { color: colors.textMuted, fontSize: 18 },
   metaRow: { flexDirection: 'row', alignItems: 'center', gap: 7, marginTop: 10 },
@@ -191,7 +191,7 @@ const styles = StyleSheet.create({
   emptyPulse: { alignItems: 'center', paddingVertical: 36, gap: 12, borderBottomWidth: 1, borderBottomColor: colors.surface },
   emptyPulseText: { color: colors.textMuted, fontSize: 14, textAlign: 'center', lineHeight: 21 },
 
-  sectionTitle: { color: colors.text, fontSize: 16, fontWeight: '700', marginTop: 24, marginBottom: 4 },
+  sectionTitle: { color: colors.text, fontSize: 16, fontFamily: fonts.serif, marginTop: 24, marginBottom: 4 },
 
   logCard: { backgroundColor: colors.surface, borderRadius: 14, padding: 16, marginTop: 12, borderWidth: 1, borderColor: colors.border },
   logHeader: { flexDirection: 'row', alignItems: 'center', gap: 10 },

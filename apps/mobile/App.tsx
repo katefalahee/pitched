@@ -20,11 +20,37 @@ import { colors } from './lib/theme'
 import type { Session } from '@supabase/supabase-js'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 
+import { useFonts } from 'expo-font'
+import {
+  PlayfairDisplay_500Medium,
+  PlayfairDisplay_600SemiBold,
+  PlayfairDisplay_600SemiBold_Italic,
+} from '@expo-google-fonts/playfair-display'
+import {
+  Inter_400Regular,
+  Inter_500Medium,
+  Inter_600SemiBold,
+  Inter_700Bold,
+} from '@expo-google-fonts/inter'
+import * as SplashScreen from 'expo-splash-screen'
+
+SplashScreen.preventAutoHideAsync()
+
 type Screen = 'matches' | 'diary' | 'feed' | 'find' | 'profile' | 'user' | 'addmatch' | 'creatematch' | 'story' | 'memory' | 'ground'
 
 export default function App() {
   const [session, setSession] = useState<Session | null>(null)
   const [authReady, setAuthReady] = useState(false)
+
+ const [fontsLoaded, fontError] = useFonts({
+    PlayfairDisplay_500Medium,
+    PlayfairDisplay_600SemiBold,
+    PlayfairDisplay_600SemiBold_Italic,
+    Inter_400Regular,
+    Inter_500Medium,
+    Inter_600SemiBold,
+    Inter_700Bold,
+  })
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -35,11 +61,18 @@ export default function App() {
     return () => listener.subscription.unsubscribe()
   }, [])
 
-  if (!authReady) {
-    return <View style={styles.center}><ActivityIndicator color="#10B981" /></View>
-  }
-  if (!session) return <Login />
+  useEffect(() => {
+    if (fontsLoaded) {
+      SplashScreen.hideAsync()
+    }
+  }, [fontsLoaded])
 
+  // Fonts AND auth must be ready before anything renders (splash covers this)
+  if (!fontsLoaded || !authReady) {
+    return null
+  }
+
+  if (!session) return <Login />
   return <Main session={session} />
 }
 

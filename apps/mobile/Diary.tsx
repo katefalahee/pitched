@@ -3,6 +3,8 @@ import { View, Text, FlatList, StyleSheet, ActivityIndicator, RefreshControl, To
 import { getUserLogs } from './lib/api'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import Header from './Header'
+import MatchPulse from './components/MatchPulse'
+import { colors, fonts } from './lib/theme'
 
 
 export default function Diary({ userId, onMenu, onOpenEntry }: { userId: string; onMenu: () => void; onOpenEntry: (entry: any) => void }) {
@@ -67,11 +69,7 @@ export default function Diary({ userId, onMenu, onOpenEntry }: { userId: string;
               />
             </View>
             <Text style={styles.meta}>{item.match.venue.name}</Text>
-            <Text style={styles.stars}>
-              {'★'.repeat(Math.floor(item.rating))}
-              <Text style={styles.starsOff}>{'★'.repeat(5 - Math.floor(item.rating))}</Text>
-              <Text style={styles.ratingNum}>  {item.rating.toFixed(1)}</Text>
-            </Text>
+            <MatchPulse value={Number(item.rating)} size={22} showLabel={false} />
             {item.review ? <Text style={styles.review}>"{item.review}"</Text> : null}
             {item.moods && item.moods.length > 0 && (
               <View style={styles.moodRow}>

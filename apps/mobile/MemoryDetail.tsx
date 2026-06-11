@@ -1,5 +1,7 @@
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { colors, fonts } from './lib/theme'
+import MatchPulse from './components/MatchPulse'
 
 const MOOD_STYLE: Record<string, string> = {
   electric: '#F59E0B', emotional: '#EC4899', tense: '#EF4444', proud: '#10B981',
@@ -64,11 +66,9 @@ export default function MemoryDetail({ entry, onBack, onEdit }: {
         {/* Your rating */}
         <View style={styles.block}>
           <Text style={styles.blockLabel}>Your rating</Text>
-          <Text style={styles.bigStars}>
-            {'★'.repeat(Math.floor(rating))}
-            <Text style={styles.bigStarsOff}>{'★'.repeat(5 - Math.floor(rating))}</Text>
-            <Text style={styles.ratingNum}>  {rating.toFixed(1)}</Text>
-          </Text>
+          <View style={{ alignItems: 'flex-start' }}>
+            <MatchPulse value={rating} size={32} />
+          </View>
         </View>
 
         {/* Your review — the centrepiece */}

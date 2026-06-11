@@ -3,6 +3,7 @@ import { View, Text, FlatList, StyleSheet, ActivityIndicator, TouchableOpacity, 
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { getMatchStory } from './lib/api'
 import { colors, fonts } from './lib/theme'
+import MatchPulse from './components/MatchPulse'
 
 // Map each mood to a friendly label + colour for the pulse chips
 const MOOD_STYLE: Record<string, string> = {
@@ -130,7 +131,7 @@ export default function MatchStory({ matchId, onBack, onLog }: {
                 <Text style={styles.logAvatarText}>{(item.user?.username ?? '?').charAt(0).toUpperCase()}</Text>
               </View>
               <Text style={styles.logUser}>@{item.user?.username}</Text>
-              <Text style={styles.logRating}>{'★'.repeat(Math.floor(item.rating))}<Text style={styles.logRatingOff}>{'★'.repeat(5 - Math.floor(item.rating))}</Text></Text>
+              <MatchPulse value={Number(item.rating)} size={26} showLabel={false} />
             </View>
             {item.review ? <Text style={styles.logReview}>{item.review}</Text> : null}
             {item.moods && item.moods.length > 0 && (

@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator, Alert } from 'react-native'
 import { createLog, updateLog } from './lib/api'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
+import MatchPulse from './components/MatchPulse'
+import { colors, fonts } from './lib/theme'
 
 const MOODS = ['electric', 'emotional', 'tense', 'proud', 'heartbreak', 'joyful', 'dramatic', 'disappointing']
 
@@ -79,12 +81,9 @@ export default function LogMatch({ match, userId, existingLog, onDone, onCancel 
       <Text style={styles.meta}>{match.venue.name}</Text>
 
       <Text style={styles.label}>Your rating</Text>
-      <View style={styles.starRow}>
-        {[1, 2, 3, 4, 5].map((n) => (
-          <TouchableOpacity key={n} onPress={() => setRating(n)}>
-            <Text style={[styles.star, n > rating && styles.starOff]}>★</Text>
-          </TouchableOpacity>
-        ))}
+      <Text style={styles.pulseLabel}>MATCH PULSE</Text>
+      <View style={styles.pulseWrap}>
+        <MatchPulse value={rating} onChange={setRating} size={44} />
       </View>
 
       <Text style={styles.label}>Review (optional)</Text>
@@ -161,4 +160,6 @@ const styles = StyleSheet.create({
   visOptionOn: { borderColor: 'rgba(16,185,129,0.5)', backgroundColor: 'rgba(16,185,129,0.08)' },
   visLabel: { fontSize: 12, color: '#6B7183', fontWeight: '500' },
   visLabelOn: { color: '#10B981' },
+  pulseLabel: { color: colors.textMuted, fontSize: 11, fontFamily: fonts.sansMedium, letterSpacing: 1.2, textTransform: 'uppercase', textAlign: 'center', marginBottom: 12, marginTop: 8 },
+  pulseWrap: { alignItems: 'center', marginBottom: 8 },
 })

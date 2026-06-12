@@ -1,11 +1,21 @@
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
-import { colors, fonts } from './lib/theme'
+import { colors, fonts, radius } from './lib/theme'
 import MatchPulse from './components/MatchPulse'
 
-const MOOD_STYLE: Record<string, string> = {
-  electric: '#F59E0B', emotional: '#EC4899', tense: '#EF4444', proud: '#10B981',
-  heartbreak: '#6366F1', joyful: '#F59E0B', dramatic: '#8B5CF6', disappointing: '#6B7183',
+const FEELING_STYLE: Record<string, string> = {
+  electric: '#CBA75C',      // gold
+  tense: '#B5654A',         // terracotta
+  joyful: '#E0A646',        // warm amber
+  heartbreaking: '#8C5A6E', // muted plum
+  loud: '#C77B3C',          // burnt orange
+  historic: '#A88A4A',      // antique brass
+  quiet: '#7C8579',         // sage grey
+  relieved: '#6F8C7A',      // soft green
+  frustrating: '#A6553F',   // rust
+  euphoric: '#D08C4A',      // bright ochre
+  proud: '#6F7B52',         // moss
+  emotional: '#9B6A82',     // dusky rose
 }
 
 const VIS_META: Record<string, { icon: string; label: string }> = {
@@ -30,11 +40,11 @@ export default function MemoryDetail({ entry, onBack, onEdit }: {
       {/* Top bar: back + subtle edit */}
       <View style={styles.topBar}>
         <TouchableOpacity onPress={onBack} style={styles.backRow}>
-          <MaterialCommunityIcons name="chevron-left" size={22} color="#A8AEBE" />
+          <MaterialCommunityIcons name="chevron-left" size={22} color={colors.textSoft} />
           <Text style={styles.backText}>Diary</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={onEdit} style={styles.editRow}>
-          <MaterialCommunityIcons name="pencil-outline" size={16} color="#6B7183" />
+          <MaterialCommunityIcons name="pencil-outline" size={16} color={colors.textMuted} />
           <Text style={styles.editText}>Edit</Text>
         </TouchableOpacity>
       </View>
@@ -52,11 +62,11 @@ export default function MemoryDetail({ entry, onBack, onEdit }: {
             {match.home_score && match.away_score ? <Text style={styles.score}>{match.away_score}</Text> : null}
           </View>
           <View style={styles.metaRow}>
-            <MaterialCommunityIcons name="map-marker-outline" size={15} color="#6B7183" />
+            <MaterialCommunityIcons name="map-marker-outline" size={15} color={colors.textMuted} />
             <Text style={styles.metaText}>{match.venue?.name ?? 'Unknown venue'}</Text>
           </View>
           <View style={styles.metaRow}>
-            <MaterialCommunityIcons name="calendar-blank-outline" size={15} color="#6B7183" />
+            <MaterialCommunityIcons name="calendar-blank-outline" size={15} color={colors.textMuted} />
             <Text style={styles.metaText}>
               {kickoff.toLocaleDateString('en-IE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
             </Text>
@@ -86,7 +96,7 @@ export default function MemoryDetail({ entry, onBack, onEdit }: {
             <View style={styles.moodRow}>
               {entry.moods.map((m: string) => (
                 <View key={m} style={styles.moodChip}>
-                  <View style={[styles.moodDot, { backgroundColor: MOOD_STYLE[m] ?? '#6B7183' }]} />
+                  <View style={[styles.moodDot, { backgroundColor: FEELING_STYLE[m] ?? '#6B7183' }]} />
                   <Text style={styles.moodText}>{m}</Text>
                 </View>
               ))}
@@ -97,13 +107,13 @@ export default function MemoryDetail({ entry, onBack, onEdit }: {
         {/* Footer meta: logged date + visibility */}
         <View style={styles.footer}>
           <View style={styles.footerRow}>
-            <MaterialCommunityIcons name="bookmark-outline" size={14} color="#6B7183" />
+            <MaterialCommunityIcons name="bookmark-outline" size={14} color={colors.textMuted} />
             <Text style={styles.footerText}>
               Logged {logged.toLocaleDateString('en-IE', { day: 'numeric', month: 'short', year: 'numeric' })}
             </Text>
           </View>
           <View style={styles.footerRow}>
-            <MaterialCommunityIcons name={vis.icon as any} size={14} color="#6B7183" />
+            <MaterialCommunityIcons name={vis.icon as any} size={14} color={colors.textMuted} />
             <Text style={styles.footerText}>{vis.label}</Text>
           </View>
         </View>
@@ -115,31 +125,27 @@ export default function MemoryDetail({ entry, onBack, onEdit }: {
 const styles = StyleSheet.create({
   topBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: 56, paddingHorizontal: 16, paddingBottom: 8 },
   backRow: { flexDirection: 'row', alignItems: 'center' },
-  backText: { color: '#A8AEBE', fontSize: 15 },
+  backText: { color: colors.textSoft, fontSize: 15 },
   editRow: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingVertical: 4, paddingHorizontal: 6 },
-  editText: { color: '#6B7183', fontSize: 14, fontWeight: '500' },
+  editText: { color: colors.textMuted, fontSize: 14, fontFamily: fonts.sansMedium },
 
-  hero: { paddingHorizontal: 16, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: '#1C1F27' },
-  competition: { color: '#10B981', fontSize: 12, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 16 },
+  hero: { paddingHorizontal: 16, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: colors.surface },
+  competition: { color: colors.gold, fontSize: 12, fontFamily: fonts.sansSemibold, textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 16 },
   fixtureRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 },
-  team: { color: '#F4F5F7', fontSize: 26, fontWeight: '800', flex: 1 },
-  score: { color: '#F4F5F7', fontSize: 26, fontWeight: '800' },
-  vs: { color: '#6B7183', fontSize: 18 },
+  team: { color: colors.text, fontSize: 26, fontFamily: fonts.serif, flex: 1 },
+  score: { color: colors.text, fontSize: 26, fontFamily: fonts.serif },
   metaRow: { flexDirection: 'row', alignItems: 'center', gap: 7, marginTop: 10 },
-  metaText: { color: '#6B7183', fontSize: 13 },
+  metaText: { color: colors.textMuted, fontSize: 13 },
 
   block: { paddingHorizontal: 16, paddingTop: 24 },
-  blockLabel: { color: '#6B7183', fontSize: 12, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 },
-  bigStars: { fontSize: 26, color: '#F59E0B' },
-  bigStarsOff: { color: '#2E3240' },
-  ratingNum: { fontSize: 14, color: '#6B7183' },
-  review: { color: '#E8EAED', fontSize: 17, lineHeight: 27 },
+  blockLabel: { color: colors.textMuted, fontSize: 12, fontFamily: fonts.sansMedium, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 },
+  review: { color: colors.text, fontSize: 17, fontFamily: fonts.serif, lineHeight: 27 },
   moodRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  moodChip: { flexDirection: 'row', alignItems: 'center', gap: 7, backgroundColor: '#1C1F27', borderWidth: 1, borderColor: '#2E3240', borderRadius: 50, paddingHorizontal: 12, paddingVertical: 7 },
+  moodChip: { flexDirection: 'row', alignItems: 'center', gap: 7, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 7 },
   moodDot: { width: 8, height: 8, borderRadius: 4 },
-  moodText: { color: '#F4F5F7', fontSize: 13 },
+  moodText: { color: colors.text, fontSize: 13, textTransform: 'capitalize' },
 
   footer: { paddingHorizontal: 16, paddingTop: 32, gap: 8 },
   footerRow: { flexDirection: 'row', alignItems: 'center', gap: 7 },
-  footerText: { color: '#6B7183', fontSize: 13 },
+  footerText: { color: colors.textMuted, fontSize: 13 },
 })

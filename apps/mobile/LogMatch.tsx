@@ -4,6 +4,8 @@ import { createLog, updateLog } from './lib/api'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import MatchPulse from './components/MatchPulse'
 import { colors, fonts } from './lib/theme'
+import FeelingChip from './components/FeelingChip'
+import { FEELINGS } from './lib/theme'
 
 const MOODS = ['electric', 'emotional', 'tense', 'proud', 'heartbreak', 'joyful', 'dramatic', 'disappointing']
 
@@ -46,6 +48,7 @@ export default function LogMatch({ match, userId, existingLog, onDone, onCancel 
       Alert.alert('Add a rating', 'Tap a star to rate the match first.')
       return
     }
+    
     setSaving(true)
     try {
       if (existingLog) {
@@ -96,18 +99,24 @@ export default function LogMatch({ match, userId, existingLog, onDone, onCancel 
         multiline
       />
 
-      <Text style={styles.label}>Moods (optional, up to 3)</Text>
-      <View style={styles.moodWrap}>
-        {MOODS.map((m) => (
-          <TouchableOpacity
-            key={m}
-            style={[styles.moodChip, moods.includes(m) && styles.moodChipOn]}
-            onPress={() => toggleMood(m)}
-          >
-            <Text style={[styles.moodText, moods.includes(m) && styles.moodTextOn]}>{m}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+      <Text style={styles.pulseLabel}>WHAT DID IT FEEL LIKE? (MAX 3)</Text>
+        <View style={styles.feelingsWrap}>
+          {FEELINGS.map((f) => {
+            const isOn = moods.includes(f.value)
+            return (
+              <FeelingChip
+                key={f.value}
+                label={f.label}
+                selected={isOn}
+                disabled={moods.length >= 3}
+                onPress={() => {
+                  if (isOn) setMoods(moods.filter((m) => m !== f.value))
+                  else if (moods.length < 3) setMoods([...moods, f.value])
+                }}
+              />
+            )
+          })}
+        </View>
 
       <Text style={styles.label}>Who can see this?</Text>
       <View style={styles.visRow}>
@@ -162,4 +171,5 @@ const styles = StyleSheet.create({
   visLabelOn: { color: '#10B981' },
   pulseLabel: { color: colors.textMuted, fontSize: 11, fontFamily: fonts.sansMedium, letterSpacing: 1.2, textTransform: 'uppercase', textAlign: 'center', marginBottom: 12, marginTop: 8 },
   pulseWrap: { alignItems: 'center', marginBottom: 8 },
+  feelingsWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, justifyContent: 'center', marginBottom: 20 },
 })

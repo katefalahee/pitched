@@ -8,8 +8,8 @@ const CreateLogSchema = z.object({
   rating: z.number().min(0.5).max(5).multipleOf(0.5),
   review: z.string().max(2000).optional(),
   moods: z.array(z.enum([
-    'electric', 'emotional', 'tense', 'proud',
-    'heartbreak', 'joyful', 'dramatic', 'disappointing'
+    'electric', 'tense', 'joyful', 'heartbreaking', 'loud', 'historic',
+    'quiet', 'relieved', 'frustrating', 'euphoric', 'proud', 'emotional'
   ])).max(3).optional(),
   visibility: z.enum(['public', 'friends', 'private']).optional(),
 })

@@ -6,9 +6,19 @@ import { colors, fonts } from './lib/theme'
 import MatchPulse from './components/MatchPulse'
 
 // Map each mood to a friendly label + colour for the pulse chips
-const MOOD_STYLE: Record<string, string> = {
-  electric: '#F59E0B', emotional: '#EC4899', tense: '#EF4444', proud: '#10B981',
-  heartbreak: '#6366F1', joyful: '#F59E0B', dramatic: '#8B5CF6', disappointing: '#6B7183',
+const FEELING_STYLE: Record<string, string> = {
+  electric: '#CBA75C',      // gold
+  tense: '#B5654A',         // terracotta
+  joyful: '#E0A646',        // warm amber
+  heartbreaking: '#8C5A6E', // muted plum
+  loud: '#C77B3C',          // burnt orange
+  historic: '#A88A4A',      // antique brass
+  quiet: '#7C8579',         // sage grey
+  relieved: '#6F8C7A',      // soft green
+  frustrating: '#A6553F',   // rust
+  euphoric: '#D08C4A',      // bright ochre
+  proud: '#6F7B52',         // moss
+  emotional: '#9B6A82',     // dusky rose
 }
 
 export default function MatchStory({ matchId, onBack, onLog }: {
@@ -28,7 +38,7 @@ export default function MatchStory({ matchId, onBack, onLog }: {
   async function onRefresh() { setRefreshing(true); await load(); setRefreshing(false) }
 
   if (loading) {
-    return <View style={styles.center}><ActivityIndicator color="#10B981" /></View>
+    return <View style={styles.center}><ActivityIndicator color={colors.gold} /></View>
   }
   if (error || !data) {
     return (
@@ -49,12 +59,12 @@ export default function MatchStory({ matchId, onBack, onLog }: {
         keyExtractor={(item) => item.id}
         contentContainerStyle={{ paddingBottom: 120 }}
         alwaysBounceVertical
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#10B981" colors={['#10B981']} />}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.gold} colors={[colors.gold]} />}
         ListHeaderComponent={
           <View>
             {/* Back */}
             <TouchableOpacity onPress={onBack} style={styles.backRow}>
-              <MaterialCommunityIcons name="chevron-left" size={22} color="#A8AEBE" />
+              <MaterialCommunityIcons name="chevron-left" size={22} color={colors.textSoft} />
               <Text style={styles.backText}>Back</Text>
             </TouchableOpacity>
 
@@ -72,7 +82,7 @@ export default function MatchStory({ matchId, onBack, onLog }: {
               </View>
 
               <View style={styles.metaRow}>
-                <MaterialCommunityIcons name="map-marker-outline" size={15} color="#6B7183" />
+                <MaterialCommunityIcons name="map-marker-outline" size={15} color={colors.textMuted} />
                 <Text style={styles.metaText}>{match.venue?.name ?? 'Unknown venue'}</Text>
               </View>
               <View style={styles.metaRow}>
@@ -103,8 +113,8 @@ export default function MatchStory({ matchId, onBack, onLog }: {
                     <Text style={styles.moodHeading}>The mood in the ground</Text>
                     <View style={styles.moodChips}>
                       {pulse.topMoods.map((m: any) => (
-                        <View key={m.mood} style={[styles.moodChip, { borderColor: (MOOD_STYLE[m.mood] ?? '#6B7183') + '66' }]}>
-                          <View style={[styles.moodDot, { backgroundColor: MOOD_STYLE[m.mood] ?? '#6B7183' }]} />
+                        <View key={m.mood} style={[styles.moodChip, { borderColor: (FEELING_STYLE[m.mood] ?? '#6B7183') + '66' }]}>
+                          <View style={[styles.moodDot, { backgroundColor: FEELING_STYLE[m.mood] ?? '#6B7183' }]} />
                           <Text style={styles.moodChipText}>{m.mood}</Text>
                           <Text style={styles.moodCount}>{m.count}</Text>
                         </View>
@@ -115,7 +125,7 @@ export default function MatchStory({ matchId, onBack, onLog }: {
               </View>
             ) : (
               <View style={styles.emptyPulse}>
-                <MaterialCommunityIcons name="star-outline" size={28} color="#3F4354" />
+                <MaterialCommunityIcons name="star-outline" size={28} color={colors.border} />
                 <Text style={styles.emptyPulseText}>No memories yet.{'\n'}Be the first to log this match.</Text>
               </View>
             )}
@@ -138,7 +148,7 @@ export default function MatchStory({ matchId, onBack, onLog }: {
               <View style={styles.logMoods}>
                 {item.moods.map((m: string) => (
                   <View key={m} style={styles.logMoodChip}>
-                    <View style={[styles.moodDotSmall, { backgroundColor: MOOD_STYLE[m] ?? '#6B7183' }]} />
+                    <View style={[styles.moodDotSmall, { backgroundColor: FEELING_STYLE[m] ?? '#6B7183' }]} />
                     <Text style={styles.logMoodText}>{m}</Text>
                   </View>
                 ))}
@@ -151,7 +161,7 @@ export default function MatchStory({ matchId, onBack, onLog }: {
       {/* ── PINNED ACTION: Log / Edit ────────── */}
       <View style={styles.actionBar}>
         <TouchableOpacity style={styles.logButton} onPress={() => onLog(match, data.myLog)}>
-          <MaterialCommunityIcons name={hasLogged ? 'pencil' : 'plus'} size={20} color="#000" />
+          <MaterialCommunityIcons name={hasLogged ? 'pencil' : 'plus'} size={20} color={colors.onGold} />
           <Text style={styles.logButtonText}>{hasLogged ? 'Edit your memory' : 'Log this match'}</Text>
         </TouchableOpacity>
       </View>
@@ -167,7 +177,7 @@ const styles = StyleSheet.create({
   backText: { color: colors.textSoft, fontSize: 15 },
 
   hero: { paddingVertical: 20, borderBottomWidth: 1, borderBottomColor: colors.surface },
-  competition: { color: colors.gold, fontSize: 12, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 16 },
+  competition: { color: colors.gold, fontSize: 12, fontFamily: fonts.sansSemibold, textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 16 },
   fixtureRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 },
   team: { color: colors.text, fontSize: 26, fontFamily: fonts.serif, flex: 1 },
   score: { color: colors.text, fontSize: 26, fontWeight: '800' },
@@ -178,7 +188,7 @@ const styles = StyleSheet.create({
   pulse: { paddingVertical: 24, borderBottomWidth: 1, borderBottomColor: colors.surface },
   pulseStats: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 28 },
   pulseStat: { alignItems: 'center' },
-  pulseNum: { color: colors.text, fontSize: 32, fontWeight: '800' },
+  pulseNum: { color: colors.text, fontSize: 32, fontFamily: fonts.serif },
   pulseLabel: { color: colors.textMuted, fontSize: 11, textTransform: 'uppercase', letterSpacing: 1, marginTop: 2 },
   pulseDivider: { width: 1, height: 40, backgroundColor: colors.border },
   moodSection: { marginTop: 24, alignItems: 'center' },
@@ -186,7 +196,7 @@ const styles = StyleSheet.create({
   moodChips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, justifyContent: 'center' },
   moodChip: { flexDirection: 'row', alignItems: 'center', gap: 7, borderWidth: 1, borderRadius: 50, paddingHorizontal: 12, paddingVertical: 7 },
   moodDot: { width: 8, height: 8, borderRadius: 4 },
-  moodChipText: { color: colors.text, fontSize: 13, fontWeight: '500' },
+  moodChipText: { color: colors.text, fontSize: 13, fontFamily: fonts.sansMedium, textTransform: 'capitalize' },
   moodCount: { color: colors.textMuted, fontSize: 12, fontWeight: '600' },
 
   emptyPulse: { alignItems: 'center', paddingVertical: 36, gap: 12, borderBottomWidth: 1, borderBottomColor: colors.surface },

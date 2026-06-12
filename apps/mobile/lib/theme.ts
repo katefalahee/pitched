@@ -68,3 +68,19 @@ export const spacing = {
 export const radius = {
   sm: 12, md: 16, lg: 20, xl: 24, pill: 999,
 }
+
+// The 12 feelings (stored lowercase in the `moods` column; shown title-cased)
+export const FEELINGS: { value: string; label: string }[] = [
+  { value: 'electric', label: 'Electric' },
+  { value: 'tense', label: 'Tense' },
+  { value: 'joyful', label: 'Joyful' },
+  { value: 'heartbreaking', label: 'Heartbreaking' },
+  { value: 'loud', label: 'Loud' },
+  { value: 'historic', label: 'Historic' },
+  { value: 'quiet', label: 'Quiet' },
+  { value: 'relieved', label: 'Relieved' },
+  { value: 'frustrating', label: 'Frustrating' },
+  { value: 'euphoric', label: 'Euphoric' },
+  { value: 'proud', label: 'Proud' },
+  { value: 'emotional', label: 'Emotional' },
+]

@@ -4,7 +4,7 @@ import { getUserLogs } from './lib/api'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import Header from './Header'
 import MatchPulse from './components/MatchPulse'
-import { colors, fonts } from './lib/theme'
+import { colors, fonts, radius } from './lib/theme'
 
 
 export default function Diary({ userId, onMenu, onOpenEntry }: { userId: string; onMenu: () => void; onOpenEntry: (entry: any) => void }) {
@@ -36,7 +36,7 @@ export default function Diary({ userId, onMenu, onOpenEntry }: { userId: string;
         subtitle={`Your match diary — ${logs.length} logged so far`}
       />
 
-      {loading && <ActivityIndicator color="#10B981" style={{ marginTop: 40 }} />}
+      {loading && <ActivityIndicator color={colors.gold} style={{ marginTop: 40 }} />}
       {error && <Text style={styles.error}>Error: {error}</Text>}
       {!loading && !error && logs.length === 0 && (
         <Text style={styles.empty}>No matches logged yet. Tap a match on the home screen to start your diary.</Text>
@@ -51,8 +51,8 @@ export default function Diary({ userId, onMenu, onOpenEntry }: { userId: string;
           <RefreshControl
                 refreshing={refreshing}
                 onRefresh={onRefresh}
-                tintColor="#10B981"
-                colors={['#10B981']}
+                tintColor={colors.gold}
+                colors={[colors.gold]}
                 progressViewOffset={60}
               />
         }
@@ -87,19 +87,13 @@ export default function Diary({ userId, onMenu, onOpenEntry }: { userId: string;
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  back: { color: '#A8AEBE', fontSize: 15, marginBottom: 16 },
-  heading: { fontSize: 32, fontWeight: '700', color: '#F4F5F7' },
-  subheading: { fontSize: 13, color: '#A8AEBE', marginTop: 4 },
-  error: { color: '#EF4444', marginTop: 20 },
-  empty: { color: '#6B7183', marginTop: 40, fontSize: 14, lineHeight: 22 },
-  card: { backgroundColor: '#1C1F27', borderRadius: 14, padding: 16, marginBottom: 12, borderWidth: 1, borderColor: '#2E3240' },
-  teams: { fontSize: 17, fontWeight: '600', color: '#F4F5F7', marginBottom: 4 },
-  meta: { fontSize: 12, color: '#6B7183', marginBottom: 8 },
-  stars: { fontSize: 16, color: '#F59E0B', marginBottom: 8 },
-  starsOff: { color: '#2E3240' },
-  ratingNum: { fontSize: 12, color: '#6B7183' },
-  review: { fontSize: 14, color: '#A8AEBE', fontStyle: 'italic', lineHeight: 20, marginBottom: 8 },
-  moodRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
-  moodChip: { fontSize: 11, color: '#F59E0B', backgroundColor: 'rgba(245,158,11,0.12)', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 50, overflow: 'hidden' },
+  error: { color: colors.danger, marginTop: 20 },
+  empty: { color: colors.textMuted, marginTop: 40, fontSize: 14, lineHeight: 22 },
+  card: { backgroundColor: colors.surface, borderRadius: radius.md, padding: 16, marginBottom: 12, borderWidth: 1, borderColor: colors.border },
   cardTop: { flexDirection: 'row', alignItems: 'flex-start', gap: 8 },
+  teams: { fontSize: 18, fontFamily: fonts.serif, color: colors.text, marginBottom: 4 },
+  meta: { fontSize: 12, fontFamily: fonts.sans, color: colors.textMuted, marginBottom: 8 },
+  review: { fontSize: 14, fontFamily: fonts.serif, color: colors.textSoft, lineHeight: 21, marginTop: 8, marginBottom: 8 },
+  moodRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 4 },
+  moodChip: { fontSize: 11, fontFamily: fonts.sansMedium, color: colors.gold, backgroundColor: colors.goldSoft, paddingHorizontal: 10, paddingVertical: 4, borderRadius: radius.pill, overflow: 'hidden', textTransform: 'capitalize' },
 })

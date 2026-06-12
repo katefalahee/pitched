@@ -6,6 +6,7 @@ import { getPassport } from './lib/api'
 import { captureRef } from 'react-native-view-shot'
 import * as Sharing from 'expo-sharing'
 import PassportShareCard from './PassportShareCard'
+import PassportTicketCard from './components/PassportTicketCard'
 
 export default function Passport({ onOpenGround }: { onOpenGround: (venueId: string) => void }) {
   const [data, setData] = useState<any | null>(null)
@@ -67,7 +68,13 @@ export default function Passport({ onOpenGround }: { onOpenGround: (venueId: str
       <View style={styles.grid}>
         {venues.map((v: any) => (
           <TouchableOpacity key={v.id} style={styles.cell} activeOpacity={0.8} onPress={() => onOpenGround(v.id)}>
-            <Stamp venue={v} visited={v.visited} />
+            <PassportTicketCard
+              homeTeam={v.name}
+              awayTeam={v.county ?? v.country ?? ''}
+              city={v.county ?? v.name}
+              year={v.first_visit ? new Date(v.first_visit).getFullYear() : undefined}
+              visited={v.visited}
+            />
           </TouchableOpacity>
         ))}
       </View>
@@ -96,7 +103,7 @@ const styles = StyleSheet.create({
   progressPct: { color: '#6B7183', fontSize: 11, marginTop: 8, letterSpacing: 1 },
 
   grid: { flexDirection: 'row', flexWrap: 'wrap' },
-  cell: { width: '50%' },
+  cell: { width: '100%', marginBottom: 12 },
 
   shareBtn: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: '#C9A24B', borderRadius: 50, paddingHorizontal: 20, paddingVertical: 11, marginTop: 18 },
   shareBtnText: { color: '#13151A', fontSize: 14, fontWeight: '700' },
